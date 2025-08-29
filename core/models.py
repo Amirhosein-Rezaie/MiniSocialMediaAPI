@@ -47,6 +47,7 @@ class Users(AbstractUser):
     user_permissions = None
     is_staff = None
     is_superuser = None
+    last_login = None
 
     class Meta:
         db_table = 'users'
