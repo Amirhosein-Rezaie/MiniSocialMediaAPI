@@ -105,3 +105,26 @@ class Comments(models.Model):
 
     def __str__(self):
         return "%s %s" % (self.user.username, self.comment[:10])
+
+
+class ViewPost(models.Model):
+    """
+    The model that saves views of posts
+    """
+    user = models.ForeignKey(
+        to=Users, verbose_name='user', null=False, blank=False, on_delete=models.DO_NOTHING,
+        related_name='user_view_post'
+    )
+    post = models.ForeignKey(
+        to=Posts, verbose_name='post', null=False, blank=False, on_delete=models.DO_NOTHING,
+        related_name='viewed_post'
+    )
+    created_at = models.DateTimeField(
+        verbose_name='created_at', auto_now_add=True
+    )
+
+    class Meta:
+        db_table = 'ViewPost'
+
+    def __str__(self):
+        return "%s %s" % (self.user.username, self.post.title)
