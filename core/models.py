@@ -40,7 +40,7 @@ class Users(AbstractUser):
         verbose_name='profile', upload_to='profiles/'
     )
     status = models.CharField(
-        max_length=20, choices=Status, default=Status.ACTIVE, null=False, blank=False
+        max_length=150, choices=Status, default=Status.ACTIVE, null=False, blank=False
     )
 
     date_joined = None
@@ -68,6 +68,9 @@ class Texts(models.Model):
         verbose_name='user', null=False, blank=False, to=Users, on_delete=models.DO_NOTHING,
         related_name='user_texts'
     )
+    is_used = models.BooleanField(
+        verbose_name='is_used', default=True, null=False, blank=False
+    )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
     )
@@ -94,6 +97,9 @@ class Videos(models.Model):
     caption = models.TextField(
         verbose_name='caption', null=True, blank=True
     )
+    is_used = models.BooleanField(
+        verbose_name='is_used', default=True, null=False, blank=False
+    )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
     )
@@ -119,6 +125,9 @@ class Images(models.Model):
     )
     caption = models.TextField(
         verbose_name='caption', null=True, blank=True
+    )
+    is_used = models.BooleanField(
+        verbose_name='is_used', default=True, null=False, blank=False
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
@@ -153,6 +162,9 @@ class Posts(models.Model):
     image_content = models.OneToOneField(
         verbose_name='image', null=True, blank=True, to=Images, on_delete=models.CASCADE,
         related_name='post_image'
+    )
+    is_deleted = models.BooleanField(
+        verbose_name='is_deleted', default=False, null=False, blank=False
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
