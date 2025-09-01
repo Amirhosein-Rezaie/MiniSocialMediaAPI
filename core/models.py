@@ -151,15 +151,15 @@ class Posts(models.Model):
     title = models.CharField(
         verbose_name='title', null=True, blank=True, max_length=150
     )
-    text_content = models.OneToOneField(
-        verbose_name='text_content', null=True, blank=True, to=Texts, on_delete=models.CASCADE,
+    text = models.OneToOneField(
+        verbose_name='text', null=True, blank=True, to=Texts, on_delete=models.CASCADE,
         related_name='post_text',
     )
-    video_content = models.OneToOneField(
+    video = models.OneToOneField(
         verbose_name='video', null=True, blank=True, to=Videos, on_delete=models.CASCADE,
         related_name='post_video'
     )
-    image_content = models.OneToOneField(
+    image = models.OneToOneField(
         verbose_name='image', null=True, blank=True, to=Images, on_delete=models.CASCADE,
         related_name='post_image'
     )
