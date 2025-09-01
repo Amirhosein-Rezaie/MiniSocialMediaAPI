@@ -101,9 +101,9 @@ class Command(BaseCommand):
             CoreModels.Posts.objects.create(
                 user=choice(user_users_list),
                 title=faker_fa.text(20),
-                text_content=text or None,
-                video_content=video or None,
-                image_content=image or None,
+                text=text or None,
+                video=video or None,
+                image=image or None,
                 is_deleted=False
             )
         posts_list = list(CoreModels.Posts.objects.all())
