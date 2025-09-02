@@ -15,7 +15,7 @@ class Users(AbstractUser):
 
     class Status(models.TextChoices):
         ACTIVE = "ACTIVE", "active"
-        DELETED = "DELETED", "deleted"
+        IS_DELETED = "IS_DELETED", "is_deleted"
         SUSPENDED = "SUSPENDED", "suspended"
 
     first_name = models.CharField(
@@ -61,6 +61,10 @@ class Texts(models.Model):
     Represents text-based posts created by users in the social media platform.
     Texts can be published alone or combined with images/videos.
     """
+    class Status(models.TextChoices):
+        IS_USED = 'IS_USED', 'is_used'
+        ACTIVE = 'ACTIVE', 'active'
+
     text = models.TextField(
         verbose_name='text', null=False, blank=False
     )
@@ -68,8 +72,9 @@ class Texts(models.Model):
         verbose_name='user', null=False, blank=False, to=Users, on_delete=models.DO_NOTHING,
         related_name='user_texts'
     )
-    is_used = models.BooleanField(
-        verbose_name='is_used', default=True, null=False, blank=False
+    status = models.CharField(
+        verbose_name='status', default=Status.ACTIVE, null=False, blank=False,
+        choices=Status.choices,
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
@@ -87,6 +92,10 @@ class Videos(models.Model):
     Represents video content uploaded by users.
     Videos can appear as standalone posts or together with texts/images.
     """
+    class Status(models.TextChoices):
+        IS_USED = 'IS_USED', 'is_used'
+        ACTIVE = 'ACTIVE', 'active'
+
     video = models.FileField(
         verbose_name='video', null=False, blank=False, upload_to='posts/videos/'
     )
@@ -97,8 +106,9 @@ class Videos(models.Model):
     caption = models.TextField(
         verbose_name='caption', null=True, blank=True
     )
-    is_used = models.BooleanField(
-        verbose_name='is_used', default=True, null=False, blank=False
+    status = models.CharField(
+        verbose_name='status', default=Status.ACTIVE, null=False, blank=False,
+        choices=Status.choices,
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
@@ -116,6 +126,10 @@ class Images(models.Model):
     Represents image content uploaded by users.
     Images can be posted independently or alongside texts/videos.
     """
+    class Status(models.TextChoices):
+        IS_USED = 'IS_USED', 'is_used'
+        ACTIVE = 'ACTIVE', 'active'
+
     image = models.ImageField(
         verbose_name='image', null=False, blank=False, upload_to='posts/images/'
     )
@@ -126,8 +140,9 @@ class Images(models.Model):
     caption = models.TextField(
         verbose_name='caption', null=True, blank=True
     )
-    is_used = models.BooleanField(
-        verbose_name='is_used', default=True, null=False, blank=False
+    status = models.CharField(
+        verbose_name='status', default=Status.ACTIVE, null=False, blank=False,
+        choices=Status.choices,
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
@@ -163,9 +178,6 @@ class Posts(models.Model):
         verbose_name='image', null=True, blank=True, to=Images, on_delete=models.CASCADE,
         related_name='post_image'
     )
-    is_deleted = models.BooleanField(
-        verbose_name='is_deleted', default=False, null=False, blank=False
-    )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
     )
@@ -177,7 +189,7 @@ class Posts(models.Model):
         return "%s -> %s" % (self.user.username, self.title[:30] or "No Title")
 
     def save(self, *args, **kwargs):
-        if not (self.text_content or self.image_content or self.video_content):
+        if not (self.text or self.image or self.video):
             raise ValidationError(
                 "Minimum one content field is necessary."
             )
