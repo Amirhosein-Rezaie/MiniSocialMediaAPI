@@ -7,7 +7,7 @@ from core.serializers import (
 )
 
 
-class Follow(ModelSerializer):
+class FollowSerializer(ModelSerializer):
     follower_user_details = UsersSerializer(
         read_only=True, source='follower_user'
     )
@@ -20,7 +20,7 @@ class Follow(ModelSerializer):
         fields = '__all__'
 
 
-class Follow(ModelSerializer):
+class LoginsSerializers(ModelSerializer):
     user_details = UsersSerializer(read_only=True, source='user')
 
     class Meta:
