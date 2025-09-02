@@ -38,9 +38,9 @@ class ImagesSerializer(ModelSerializer):
 
 class PostsSerializer(ModelSerializer):
     user_detail = UsersSerializer(read_only=True, source='user')
-    text_detail = UsersSerializer(read_only=True, source='text')
-    video_detail = UsersSerializer(read_only=True, source='video')
-    image_detail = UsersSerializer(read_only=True, source='user')
+    text_detail = TextsSerializer(read_only=True, source='text')
+    video_detail = VideosSerializer(read_only=True, source='video')
+    image_detail = ImagesSerializer(read_only=True, source='image')
 
     class Meta:
         model = CoreModels.Posts

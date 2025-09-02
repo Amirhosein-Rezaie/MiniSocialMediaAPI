@@ -1,6 +1,5 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import (
-    GenericAPIView
+from rest_framework.viewsets import (
+    ModelViewSet, GenericViewSet
 )
 from rest_framework.mixins import (
     ListModelMixin, RetrieveModelMixin, CreateModelMixin
@@ -13,14 +12,12 @@ from rest_framework import status
 
 
 # Users APIs
-class UserViewset(ModelViewSet):
+class UserView(ModelViewSet):
     """
     A view for delete, create, get and update users
     """
     serializer_class = CoreSerializers.UsersSerializer
-    queryset = CoreModels.Users.objects.filter(Q(
-        status=CoreModels.Users.Status.ACTIVE
-    ))
+    queryset = CoreModels.Users.objects.all()
 
     def destroy(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -34,7 +31,7 @@ class UserViewset(ModelViewSet):
 
 # Texts APIs
 class TextsView(
-    GenericAPIView, RetrieveModelMixin, ListModelMixin, CreateModelMixin
+    GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin
 ):
     """
     A view for get and create texts
@@ -45,7 +42,7 @@ class TextsView(
 
 # Videos APIs
 class VideosView(
-    GenericAPIView, RetrieveModelMixin, ListModelMixin, CreateModelMixin
+    GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin
 ):
     """
     A view for get and create video
@@ -56,7 +53,7 @@ class VideosView(
 
 # Videos APIs
 class ImagesView(
-    GenericAPIView, RetrieveModelMixin, ListModelMixin, CreateModelMixin
+    GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin
 ):
     """
     A view for get and create image
