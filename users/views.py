@@ -1,3 +1,66 @@
-from django.shortcuts import render
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import (
+    GenericAPIView
+)
+from rest_framework.mixins import (
+    ListModelMixin, RetrieveModelMixin,
+    CreateModelMixin, UpdateModelMixin,
+)
+from users import serializers as UsersSerializers
+from users import models as UsersModels
+from django.db.models import Q
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.request import Request
 
-# Create your views here.
+
+# Follow APIs
+class FollowView(
+    GenericAPIView, CreateModelMixin,
+    UpdateModelMixin, ListModelMixin,
+    RetrieveModelMixin,
+):
+    """
+    A view for follow and unfollow users by themselves (create, update, get)
+    """
+    serializer_class = UsersSerializers.FollowSerializer
+    queryset = UsersModels.Follow.objects.all()
+
+    def create(self, request: Request, *args, **kwargs):
+        data = request.data
+
+        if data['status'] != UsersModels.Follow.Status.FOLLOEWED:
+            return Response(
+                data={
+                    "error": 'Wrong data.',
+                    "details": f"The value of status have to be {UsersModels.Follow.Status.FOLLOEWED}"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        flr_user = data['follower_user']
+        fld_user = data['followed_user']
+
+        found = UsersModels.Follow.objects.filter(Q(
+            followed_user=fld_user, flr_user=flr_user
+        ))
+
+        if found:
+            return Response(
+                data={
+                    "error": "found following.",
+                    "details": f"This {data['follower_user']} user has already follow this {data['followed_user']} user.",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            super().create(request, *args, **kwargs)
+
+
+# Login APIs
+class LoginsView(ModelViewSet):
+    """
+    A view for set log about login tries by users
+    """
+    serializer_class = UsersSerializers.LoginsSerializers
+    queryset = UsersModels.Logins.objects.all()
