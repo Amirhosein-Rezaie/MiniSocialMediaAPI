@@ -6,12 +6,18 @@ from users import models as UsersModels
 from random import randint, choice
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
+from colorama import Fore, Style
+
+
+def Green_OK():
+    print(f"{Fore.GREEN}OK{Style.RESET_ALL}")
+
 
 faker_fa = Faker('fa_IR')
 
 
 class Command(BaseCommand):
-    print("Inserting fake data ... ")
+    print(f"{Fore.CYAN}Inserting fake data ... {Style.RESET_ALL}")
 
     def handle(self, *args, **options):
         # inserting users
@@ -57,22 +63,22 @@ class Command(BaseCommand):
             Q(role=CoreModels.Users.Roles.USER)
         ))
         users_count = CoreModels.Users.objects.count()
-        print('OK')
+        Green_OK()
 
         # inserting texts
         print("Inserting Texts ... ", end='')
         # # Will fill in inserting posts
-        print('OK')
+        Green_OK()
 
         # inserting videos
         print("Inserting Videos ... ", end='')
         # # Will fill in inserting posts
-        print('OK')
+        Green_OK()
 
         # inserting Images
         print('Inserting Images ... ', end='')
         # # Will fill in inserting posts
-        print('OK')
+        Green_OK()
 
         # insertnig posts
         print('Inserting Posts ... ', end='')
@@ -81,7 +87,7 @@ class Command(BaseCommand):
             text = CoreModels.Texts.objects.create(
                 text=faker_fa.text(300),
                 user=choice(user_users_list),
-                is_used=True,
+                status=CoreModels.Texts.Status.IS_USED
             )
             video = CoreModels.Videos.objects.create(
                 video=faker_fa.file_path(extension='mp4'),
@@ -90,13 +96,13 @@ class Command(BaseCommand):
                         Q(role=CoreModels.Users.Roles.USER)
                     ))),
                 caption=faker_fa.text(300) or "",
-                is_used=True,
+                status=CoreModels.Texts.Status.IS_USED
             )
             image = CoreModels.Images.objects.create(
                 image=faker_fa.image_url(width=1366, height=768),
                 user=choice(user_users_list),
                 caption=faker_fa.text(300) or "",
-                is_used=True,
+                status=CoreModels.Texts.Status.IS_USED
             )
             CoreModels.Posts.objects.create(
                 user=choice(user_users_list),
@@ -104,10 +110,9 @@ class Command(BaseCommand):
                 text=text or None,
                 video=video or None,
                 image=image or None,
-                is_deleted=False
             )
         posts_list = list(CoreModels.Posts.objects.all())
-        print('OK')
+        Green_OK()
 
         # inserting Albums
         print('Inserting Albums ... ', end='')
@@ -116,7 +121,7 @@ class Command(BaseCommand):
                 user=user,
                 title='Saved Posts',
             )
-        print('OK')
+        Green_OK()
 
         # inserting SavePosts
         print('Inserting SavePosts ... ', end='')
@@ -127,7 +132,7 @@ class Command(BaseCommand):
                 post=choice(posts_list),
                 album=album,
             )
-        print('OK')
+        Green_OK()
 
         # inserting like posts
         print('Inserting LikedPosts ... ', end='')
@@ -136,7 +141,7 @@ class Command(BaseCommand):
                 user=choice(user_users_list),
                 post=choice(posts_list),
             )
-        print('OK')
+        Green_OK()
 
         # isnerting comments
         print('Inserting Comments ... ', end='')
@@ -146,7 +151,7 @@ class Command(BaseCommand):
                 post=choice(posts_list),
                 comment=faker_fa.text(randint(50, 300)),
             )
-        print('OK')
+        Green_OK()
 
         # inserting View Posts
         print('Inserting ViewPosts ... ', end='')
@@ -155,18 +160,20 @@ class Command(BaseCommand):
                 user=choice(user_users_list),
                 post=choice(posts_list),
             )
-        print('OK')
+        Green_OK()
 
         # inserting Followusers
         print('Inserting Follow ... ', end='')
-        flr_user = choice(user_users_list)
-        fld_user = choice(
-            list(CoreModels.Users.objects.filter(~Q(pk=flr_user.pk)))
-        )
-        UsersModels.Follow.objects.create(
-            follower_user=flr_user,
-            followed_user=fld_user,
-        )
-        print('OK')
+        for _ in range(users_count * 2):
+            flr_user = choice(user_users_list)
+            fld_user = choice(
+                list(CoreModels.Users.objects.filter(~Q(pk=flr_user.pk)))
+            )
+            UsersModels.Follow.objects.create(
+                follower_user=flr_user,
+                followed_user=fld_user,
+                status=UsersModels.Follow.Status.FOLLOEWED
+            )
+        Green_OK()
 
-        print('Completed...!')
+        print(f'{Fore.CYAN}Completed...! {Style.RESET_ALL}')
