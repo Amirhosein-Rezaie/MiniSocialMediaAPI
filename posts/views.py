@@ -1,6 +1,5 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import (
-    GenericAPIView
+from rest_framework.viewsets import (
+    ModelViewSet, GenericViewSet,
 )
 from rest_framework.mixins import (
     ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
@@ -22,7 +21,7 @@ class AlbumsView(ModelViewSet):
 
 
 # SavePosts APIs
-class SavePostsView(GenericAPIView, ListModelMixin, RetrieveModelMixin, CreateModelMixin):
+class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateModelMixin):
     """
     A view for create, get and saveposts
     """
@@ -32,9 +31,11 @@ class SavePostsView(GenericAPIView, ListModelMixin, RetrieveModelMixin, CreateMo
 
 # LikePost APIs
 class LikePostView(
-    GenericAPIView, ListModelMixin,
-    RetrieveModelMixin, CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    CreateModelMixin,
     UpdateModelMixin,
+    GenericViewSet
 ):
     """
     A view for like and dislike a post (get, create and update)
@@ -52,7 +53,12 @@ class CommentsView(ModelViewSet):
     queryset = PostsModels.Comments.objects.all()
 
 
-class ViewPostView(ModelViewSet):
+class ViewPostView(
+    ListModelMixin,
+    RetrieveModelMixin,
+    CreateModelMixin,
+    GenericViewSet,
+):
     """
     A view for take view of a posts (create, update, get and delete)
     """
