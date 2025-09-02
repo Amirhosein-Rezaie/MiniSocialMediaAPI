@@ -1,6 +1,5 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import (
-    GenericAPIView
+from rest_framework.viewsets import (
+    ModelViewSet, GenericViewSet, ReadOnlyModelViewSet
 )
 from rest_framework.mixins import (
     ListModelMixin, RetrieveModelMixin,
@@ -16,9 +15,11 @@ from rest_framework.request import Request
 
 # Follow APIs
 class FollowView(
-    GenericAPIView, CreateModelMixin,
-    UpdateModelMixin, ListModelMixin,
+    UpdateModelMixin,
+    ListModelMixin,
     RetrieveModelMixin,
+    GenericViewSet,
+    CreateModelMixin,
 ):
     """
     A view for follow and unfollow users by themselves (create, update, get)
@@ -58,7 +59,7 @@ class FollowView(
 
 
 # Login APIs
-class LoginsView(ModelViewSet):
+class LoginsView(ReadOnlyModelViewSet):
     """
     A view for set log about login tries by users
     """
