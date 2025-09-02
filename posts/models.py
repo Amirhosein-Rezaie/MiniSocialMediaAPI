@@ -101,10 +101,6 @@ class Comments(models.Model):
     """
     The model that user can comment in a specific post
     """
-    class Status(models.TextChoices):
-        ACTIVE = 'ACTIVE', 'active'
-        IS_DELETED = 'IS_DELETED'
-
     user = models.ForeignKey(
         to=Users, verbose_name='user', null=False, blank=False, on_delete=models.DO_NOTHING,
         related_name='user_comment_post'
@@ -115,10 +111,6 @@ class Comments(models.Model):
     )
     comment = models.TextField(
         verbose_name='content', null=False, blank=False
-    )
-    status = models.CharField(
-        verbose_name='status', null=False, blank=False, choices=Status.choices,
-        default=Status.ACTIVE
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
