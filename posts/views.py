@@ -3,7 +3,7 @@ from rest_framework.generics import (
     GenericAPIView
 )
 from rest_framework.mixins import (
-    ListModelMixin, RetrieveModelMixin, CreateModelMixin
+    ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
 )
 from posts import serializers as PostsSerializers
 from posts import models as PostsModels
@@ -24,14 +24,18 @@ class AlbumsView(ModelViewSet):
 # SavePosts APIs
 class SavePostsView(GenericAPIView, ListModelMixin, RetrieveModelMixin, CreateModelMixin):
     """
-    A view for create, get and update saveposts
+    A view for create, get and saveposts
     """
     serializer_class = PostsSerializers.SavePostSerializer
     queryset = PostsModels.SavePosts.objects.all()
 
 
 # LikePost APIs
-class LikePostView(GenericAPIView, ListModelMixin, RetrieveModelMixin, CreateModelMixin):
+class LikePostView(
+    GenericAPIView, ListModelMixin,
+    RetrieveModelMixin, CreateModelMixin,
+    UpdateModelMixin,
+):
     """
     A view for like and dislike a post (get, create and update)
     """
