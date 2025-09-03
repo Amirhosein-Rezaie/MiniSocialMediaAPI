@@ -17,13 +17,7 @@ from core.helper import (
 
 
 # Follow APIs
-class FollowView(
-    UpdateModelMixin,
-    ListModelMixin,
-    RetrieveModelMixin,
-    GenericViewSet,
-    CreateModelMixin,
-):
+class FollowView(UpdateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet, CreateModelMixin,):
     """
     A view for follow and unfollow users by themselves (create, update, get)
     """
@@ -52,16 +46,19 @@ class FollowView(
         flr_user = data['follower_user']
         fld_user = data['followed_user']
 
+        if fld_user == flr_user:
+            return Response(
+                {"detail": f"One user cannot follow himself."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         found = UsersModels.Follow.objects.filter(Q(
             followed_user=fld_user, flr_user=flr_user
         ))
 
         if found:
             return Response(
-                data={
-                    "error": "found following.",
-                    "details": f"This {data['follower_user']} user has already follow this {data['followed_user']} user.",
-                },
+                {"details": f"This {data['follower_user']} user has already follow this {data['followed_user']} user", },
                 status=status.HTTP_400_BAD_REQUEST,
             )
         else:
