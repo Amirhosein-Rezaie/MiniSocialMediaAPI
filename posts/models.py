@@ -35,10 +35,6 @@ class SavePosts(models.Model):
     """
     The model that users can save posts in
     """
-    class Status(models.TextChoices):
-        SAVED = 'SAVED', 'saved'
-        UNSAVED = 'UN_SAVED', 'un_saved'
-
     user = models.ForeignKey(
         to=Users, verbose_name='user', null=False, blank=False, on_delete=models.DO_NOTHING,
         related_name='user_saves'
@@ -50,10 +46,6 @@ class SavePosts(models.Model):
     album = models.ForeignKey(
         to=Albums, verbose_name='album', null=False, blank=False, on_delete=models.CASCADE,
         related_name='saved_in_album'
-    )
-    status = models.CharField(
-        verbose_name='status', null=False, blank=False, choices=Status.choices,
-        default=Status.SAVED
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True

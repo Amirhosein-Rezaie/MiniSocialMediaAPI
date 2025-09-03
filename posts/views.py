@@ -2,7 +2,7 @@ from rest_framework.viewsets import (
     ModelViewSet, GenericViewSet,
 )
 from rest_framework.mixins import (
-    ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin
+    ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin
 )
 from posts import serializers as PostsSerializers
 from posts import models as PostsModels
@@ -36,7 +36,7 @@ class AlbumsView(ModelViewSet):
 
 
 # SavePosts APIs
-class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateModelMixin):
+class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin):
     """
     A view for create, get and saveposts
     """
@@ -44,8 +44,9 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
     queryset = PostsModels.SavePosts.objects.all()
 
     def create(self, request: Request, *args, **kwargs):
-        status_value = PostsModels.SavePosts.Status.SAVED
-
+        """
+        This request is for save posts by users.
+        """
         # varibles
         data = request.data
         user = data.get('user')
@@ -62,9 +63,8 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
                     {"detail": f"This album({album}) is not owned by this user({user})"},
                     status=Status.HTTP_400_BAD_REQUEST
                 )
-
             found = PostsModels.SavePosts.objects.filter(Q(
-                user=user, post=post, album=album, status=status_value
+                user=user, post=post, album=album
             ))
             if found:
                 return Response(
