@@ -8,7 +8,7 @@ from posts import serializers as PostsSerializers
 from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status as Status
 from core.helper import (
     update_status_value
 )
@@ -28,11 +28,11 @@ class AlbumsView(ModelViewSet):
         update_field_value = request.data.get('title')
 
         if update_field_value is None:
-            return Response({"detail": "title is required"}, status=status.HTTP_400_BAD_REQUEST,)
+            return Response({"detail": "title is required"}, status=Status.HTTP_400_BAD_REQUEST,)
 
         instance.title = update_field_value
         instance.save(update_fields=['title'])
-        return Response(PostsSerializers.AlbumsSerializer(instance).data, status=status.HTTP_200_OK)
+        return Response(PostsSerializers.AlbumsSerializer(instance).data, status=Status.HTTP_200_OK)
 
 
 # SavePosts APIs
@@ -43,15 +43,40 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
     serializer_class = PostsSerializers.SavePostSerializer
     queryset = PostsModels.SavePosts.objects.all()
 
+    def create(self, request: Request, *args, **kwargs):
+        status_value = PostsModels.SavePosts.Status.SAVED
+
+        # varibles
+        data = request.data
+        user = data.get('user')
+        post = data.get('post')
+        album = data.get('album')
+
+        # process (validate)
+        if user and post and album:
+            found_album = PostsModels.Albums.objects.filter(Q(
+                user=user, id=album
+            ))
+            if not found_album:
+                return Response(
+                    {"detail": f"This album({album}) is not owned by this user({user})"},
+                    status=Status.HTTP_400_BAD_REQUEST
+                )
+
+            found = PostsModels.SavePosts.objects.filter(Q(
+                user=user, post=post, album=album, status=status_value
+            ))
+            if found:
+                return Response(
+                    {"detail": f"This post({post}) has been saved by this user({user}) in this album({album})."},
+                    status=Status.HTTP_400_BAD_REQUEST
+                )
+
+        return super().create(request, *args, **kwargs)
+
 
 # LikePost APIs
-class LikePostView(
-    ListModelMixin,
-    RetrieveModelMixin,
-    CreateModelMixin,
-    UpdateModelMixin,
-    GenericViewSet
-):
+class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, GenericViewSet):
     """
     A view for like and dislike a post (get, create and update)
     """
@@ -63,6 +88,32 @@ class LikePostView(
             request=request, self=self, status_class=PostsModels.LikePost.Status,
             seriaizer=PostsSerializers.LikePostSerializer
         )
+
+    def create(self, request: Request, *args, **kwargs):
+        data = request.data
+        status_value = PostsModels.LikePost.Status.LIKED
+        user = data.get('user')
+        post = data.get('post')
+        status = data.get('status')
+
+        if user and status and post:
+            if status != status_value:
+                return Response(
+                    {"detial": f"The value of stauts for like a post have to be {status_value}"},
+                    status=Status.HTTP_400_BAD_REQUEST
+                )
+
+            found_like = PostsModels.LikePost.objects.filter(Q(
+                user=user, status=status_value, post=post
+            ))
+
+            if found_like:
+                return Response(
+                    {"detail": f"This user({user}) have liked this ({post})."},
+                    status=Status.HTTP_400_BAD_REQUEST
+                )
+
+        return super().create(request, *args, **kwargs)
 
 
 # Comments APIs
@@ -78,21 +129,38 @@ class CommentsView(ModelViewSet):
         update_field_value = request.data.get('comment')
 
         if update_field_value is None:
-            return Response({"detail": "comment is required"}, status=status.HTTP_400_BAD_REQUEST,)
+            return Response({"detail": "comment is required"}, status=Status.HTTP_400_BAD_REQUEST,)
 
         instance.comment = update_field_value
         instance.save(update_fields=['comment'])
-        return Response(PostsSerializers.CommentsSerializer(instance).data, status=status.HTTP_200_OK)
+        return Response(PostsSerializers.CommentsSerializer(instance).data, status=Status.HTTP_200_OK)
 
 
-class ViewPostView(
-    ListModelMixin,
-    RetrieveModelMixin,
-    CreateModelMixin,
-    GenericViewSet,
-):
+class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet,):
     """
     A view for take view of a posts (create and get)
     """
     serializer_class = PostsSerializers.ViewPostSerializer
     queryset = PostsModels.ViewPost.objects.all()
+
+    def create(self, request: Request, *args, **kwargs):
+        data = request.data
+        user = data.get('user')
+        post = data.get('post')
+
+        if user and post:
+            found_view = PostsModels.ViewPost.objects.filter(
+                Q(user=user, post=post)
+            )
+            if found_view:
+                return Response(
+                    {"detail": f"This user({user}) have seen this ({post})."},
+                    status=Status.HTTP_200_OK
+                )
+            else:
+                return super().create(request, *args, **kwargs)
+        else:
+            return Response(
+                {"detail": "user and post are required."},
+                status=Status.HTTP_400_BAD_REQUEST
+            )
