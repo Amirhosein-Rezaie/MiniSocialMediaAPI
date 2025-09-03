@@ -11,6 +11,9 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
+from core.helper import (
+    update_status_value
+)
 
 
 # Follow APIs
@@ -26,6 +29,13 @@ class FollowView(
     """
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
+
+    def update(self, request: Request, *args, **kwargs):
+        return update_status_value(
+            request=request, self=self,
+            status_class=UsersModels.Follow.Status,
+            seriaizer=UsersSerializers.FollowSerializer
+        )
 
     def create(self, request: Request, *args, **kwargs):
         data = request.data
