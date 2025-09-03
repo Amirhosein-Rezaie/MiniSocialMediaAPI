@@ -58,7 +58,7 @@ class LikePostView(
     serializer_class = PostsSerializers.LikePostSerializer
     queryset = PostsModels.LikePost.objects.all()
 
-    def create(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         return update_status_value(
             request=request, self=self, status_class=PostsModels.LikePost.Status,
             seriaizer=PostsSerializers.LikePostSerializer
