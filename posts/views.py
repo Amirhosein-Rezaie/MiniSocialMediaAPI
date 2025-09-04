@@ -9,9 +9,7 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (
-    update_status_value
-)
+from core.helper import (dynamic_search)
 from rest_framework.request import Request
 
 
@@ -22,6 +20,15 @@ class AlbumsView(ModelViewSet):
     """
     serializer_class = PostsSerializers.AlbumsSerializer
     queryset = PostsModels.Albums.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, PostsModels.Albums, PostsSerializers.AlbumsSerializer)
+        return super().list(request, *args, **kwargs)
 
     def update(self, request: Request, *args, **kwargs):
         instance = self.get_object()
@@ -42,6 +49,15 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
     """
     serializer_class = PostsSerializers.SavePostSerializer
     queryset = PostsModels.SavePosts.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, PostsModels.SavePosts, PostsSerializers.SavePostSerializer)
+        return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
         """
@@ -83,6 +99,15 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
     serializer_class = PostsSerializers.LikePostSerializer
     queryset = PostsModels.LikePost.objects.all()
 
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, PostsModels.LikePost, PostsSerializers.LikePostSerializer)
+        return super().list(request, *args, **kwargs)
+
     def create(self, request: Request, *args, **kwargs):
         data = request.data
         user = data.get('user')
@@ -110,6 +135,15 @@ class CommentsView(ModelViewSet):
     serializer_class = PostsSerializers.CommentsSerializer
     queryset = PostsModels.Comments.objects.all()
 
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, PostsModels.Comments, PostsSerializers.CommentsSerializer)
+        return super().list(request, *args, **kwargs)
+
     def update(self, request: Request, *args, **kwargs):
         instance = self.get_object()
         update_field_value = request.data.get('comment')
@@ -128,6 +162,15 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
     """
     serializer_class = PostsSerializers.ViewPostSerializer
     queryset = PostsModels.ViewPost.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, PostsModels.ViewPost, PostsSerializers.ViewPostSerializer)
+        return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
         data = request.data

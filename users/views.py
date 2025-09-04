@@ -11,6 +11,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
+from core.helper import (dynamic_search)
 
 
 # Follow APIs
@@ -20,6 +21,15 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
     """
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, UsersModels.Follow, UsersSerializers.FollowSerializer)
+        return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
         data = request.data
@@ -47,3 +57,12 @@ class LoginsView(ReadOnlyModelViewSet):
     """
     serializer_class = UsersSerializers.LoginsSerializers
     queryset = UsersModels.Logins.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, UsersModels.Logins, UsersSerializers.LoginsSerializers)
+        return super().list(request, *args, **kwargs)

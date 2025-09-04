@@ -10,6 +10,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
+from core.helper import (dynamic_search)
 
 
 # Users APIs
@@ -20,7 +21,19 @@ class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
 
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, CoreModels.Users, CoreSerializers.UsersSerializer)
+        return super().list(request, *args, **kwargs)
+
     def destroy(self, request, *args, **kwargs):
+        """
+        Soft delete a user.
+        """
         obj = self.get_object()
         obj.status = CoreModels.Users.Status.IS_DELETED
         obj.save()
@@ -38,6 +51,15 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
     serializer_class = CoreSerializers.TextsSerializer
     queryset = CoreModels.Texts.objects.all()
 
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, CoreModels.Texts, CoreSerializers.TextsSerializer)
+        return super().list(request, *args, **kwargs)
+
 
 # Videos APIs
 class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
@@ -46,6 +68,15 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
     """
     serializer_class = CoreSerializers.VideosSerializer
     queryset = CoreModels.Videos.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, CoreModels.Videos, CoreSerializers.VideosSerializer)
+        return super().list(request, *args, **kwargs)
 
 
 # Videos APIs
@@ -56,6 +87,15 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
     serializer_class = CoreSerializers.ImagesSerializer
     queryset = CoreModels.Images.objects.all()
 
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, CoreModels.Images, CoreSerializers.ImagesSerializer)
+        return super().list(request, *args, **kwargs)
+
 
 # Posts APIs
 class PostsView(ModelViewSet):
@@ -64,6 +104,15 @@ class PostsView(ModelViewSet):
     """
     serializer_class = CoreSerializers.PostsSerializer
     queryset = CoreModels.Posts.objects.all()
+
+    def list(self, request: Request, *args, **kwargs):
+        """
+        Return all of field.
+        search with query params.
+        """
+        if request.query_params:
+            return dynamic_search(self, request, CoreModels.Posts, CoreSerializers.Posts)
+        return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
         # variables
