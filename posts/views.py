@@ -2,7 +2,7 @@ from rest_framework.viewsets import (
     ModelViewSet, GenericViewSet,
 )
 from rest_framework.mixins import (
-    ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin
+    ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin
 )
 from posts import serializers as PostsSerializers
 from posts import models as PostsModels
@@ -11,25 +11,38 @@ from rest_framework.response import Response
 from rest_framework import status as Status
 from core.helper import (dynamic_search)
 from rest_framework.request import Request
+from drf_spectacular.utils import (
+    extend_schema, OpenApiParameter
+)
 
 
 # Albums APIs
 class AlbumsView(ModelViewSet):
-    """
-    A view for delete, create, get and update albums
-    """
     serializer_class = PostsSerializers.AlbumsSerializer
     queryset = PostsModels.Albums.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the Albums.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='title', description="An example as normal field in search (?title=abc)", required=False,
+            ),
+            OpenApiParameter(
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, PostsModels.Albums)
         return super().list(request, *args, **kwargs)
 
+    @extend_schema(
+        description="can change only title. in update request."
+    )
     def update(self, request: Request, *args, **kwargs):
         instance = self.get_object()
         update_field_value = request.data.get('title')
@@ -44,17 +57,21 @@ class AlbumsView(ModelViewSet):
 
 # SavePosts APIs
 class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin):
-    """
-    A view for create, get and saveposts
-    """
     serializer_class = PostsSerializers.SavePostSerializer
     queryset = PostsModels.SavePosts.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the SavePosts.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, PostsModels.SavePosts)
         return super().list(request, *args, **kwargs)
@@ -93,17 +110,21 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
 
 # LikePost APIs
 class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet):
-    """
-    A view for like and dislike a post (get, create and update)
-    """
     serializer_class = PostsSerializers.LikePostSerializer
     queryset = PostsModels.LikePost.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the LikePost.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, PostsModels.LikePost)
         return super().list(request, *args, **kwargs)
@@ -129,17 +150,24 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
 
 # Comments APIs
 class CommentsView(ModelViewSet):
-    """
-    A view for comment about a posts (create, get, update and delete)
-    """
     serializer_class = PostsSerializers.CommentsSerializer
     queryset = PostsModels.Comments.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the Comments.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='comment', description="An example as normal field in search (?comment=abc)", required=False,
+            ),
+            OpenApiParameter(
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, PostsModels.Comments)
         return super().list(request, *args, **kwargs)
@@ -156,18 +184,22 @@ class CommentsView(ModelViewSet):
         return Response(PostsSerializers.CommentsSerializer(instance).data, status=Status.HTTP_200_OK)
 
 
-class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet,):
-    """
-    A view for take view of a posts (create and get)
-    """
+class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = PostsSerializers.ViewPostSerializer
     queryset = PostsModels.ViewPost.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the ViewPost.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, PostsModels.ViewPost)
         return super().list(request, *args, **kwargs)
