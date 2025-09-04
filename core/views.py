@@ -27,7 +27,7 @@ class UserView(ModelViewSet):
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, CoreModels.Users, CoreSerializers.UsersSerializer)
+            return dynamic_search(self, request, CoreModels.Users)
         return super().list(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
@@ -57,7 +57,7 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, CoreModels.Texts, CoreSerializers.TextsSerializer)
+            return dynamic_search(self, request, CoreModels.Texts)
         return super().list(request, *args, **kwargs)
 
 
@@ -75,7 +75,7 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, CoreModels.Videos, CoreSerializers.VideosSerializer)
+            return dynamic_search(self, request, CoreModels.Videos)
         return super().list(request, *args, **kwargs)
 
 
@@ -93,7 +93,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, CoreModels.Images, CoreSerializers.ImagesSerializer)
+            return dynamic_search(self, request, CoreModels.Images)
         return super().list(request, *args, **kwargs)
 
 

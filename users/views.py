@@ -28,7 +28,7 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, UsersModels.Follow, UsersSerializers.FollowSerializer)
+            return dynamic_search(self, request, UsersModels.Follow)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
@@ -64,5 +64,5 @@ class LoginsView(ReadOnlyModelViewSet):
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, UsersModels.Logins, UsersSerializers.LoginsSerializers)
+            return dynamic_search(self, request, UsersModels.Logins)
         return super().list(request, *args, **kwargs)

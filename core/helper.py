@@ -38,7 +38,7 @@ def limit_paginate(request: Request, pagination_class: PageNumberPagination):
 
 
 # functions
-def dynamic_search(self, request: Request, model: Model, serializer: ModelSerializer):
+def dynamic_search(self, request: Request, model: Model):
     """
     a function that you can have dynamic search.
     """
@@ -46,6 +46,7 @@ def dynamic_search(self, request: Request, model: Model, serializer: ModelSerial
     like = "istartswith"
     out_query_params = ['limit', 'page']
     paginator = self.pagination_class
+    serializer = self.serializer_class
     equal_to_fields = ['id']
 
     query_params = request.query_params

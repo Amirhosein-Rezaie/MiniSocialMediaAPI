@@ -27,7 +27,7 @@ class AlbumsView(ModelViewSet):
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, PostsModels.Albums, PostsSerializers.AlbumsSerializer)
+            return dynamic_search(self, request, PostsModels.Albums)
         return super().list(request, *args, **kwargs)
 
     def update(self, request: Request, *args, **kwargs):
@@ -56,7 +56,7 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, PostsModels.SavePosts, PostsSerializers.SavePostSerializer)
+            return dynamic_search(self, request, PostsModels.SavePosts)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
@@ -105,7 +105,7 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, PostsModels.LikePost, PostsSerializers.LikePostSerializer)
+            return dynamic_search(self, request, PostsModels.LikePost)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
@@ -141,7 +141,7 @@ class CommentsView(ModelViewSet):
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, PostsModels.Comments, PostsSerializers.CommentsSerializer)
+            return dynamic_search(self, request, PostsModels.Comments)
         return super().list(request, *args, **kwargs)
 
     def update(self, request: Request, *args, **kwargs):
@@ -169,7 +169,7 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
         search with query params.
         """
         if request.query_params:
-            return dynamic_search(self, request, PostsModels.ViewPost, PostsSerializers.ViewPostSerializer)
+            return dynamic_search(self, request, PostsModels.ViewPost)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
