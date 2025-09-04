@@ -62,10 +62,6 @@ class LikePost(models.Model):
     """
     The model that users can like posts
     """
-    class Status(models.TextChoices):
-        LIKED = 'LIKED', 'liked'
-        DISLIKED = 'DISLIKED', 'disliked'
-
     user = models.ForeignKey(
         to=Users, verbose_name='user', null=False, blank=False, on_delete=models.DO_NOTHING,
         related_name='user_like_post'
@@ -73,10 +69,6 @@ class LikePost(models.Model):
     post = models.ForeignKey(
         to=Posts, verbose_name='post', null=False, blank=False, on_delete=models.CASCADE,
         related_name='liked_post'
-    )
-    status = models.CharField(
-        verbose_name='status', null=False, blank=False, choices=Status.choices,
-        default=Status.LIKED
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True

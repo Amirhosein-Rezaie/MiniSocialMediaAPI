@@ -76,35 +76,21 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
 
 
 # LikePost APIs
-class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, UpdateModelMixin, GenericViewSet):
+class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet):
     """
     A view for like and dislike a post (get, create and update)
     """
     serializer_class = PostsSerializers.LikePostSerializer
     queryset = PostsModels.LikePost.objects.all()
 
-    def update(self, request, *args, **kwargs):
-        return update_status_value(
-            request=request, self=self, status_class=PostsModels.LikePost.Status,
-            seriaizer=PostsSerializers.LikePostSerializer
-        )
-
     def create(self, request: Request, *args, **kwargs):
         data = request.data
-        status_value = PostsModels.LikePost.Status.LIKED
         user = data.get('user')
         post = data.get('post')
-        status = data.get('status')
 
-        if user and status and post:
-            if status != status_value:
-                return Response(
-                    {"detial": f"The value of stauts for like a post have to be {status_value}"},
-                    status=Status.HTTP_400_BAD_REQUEST
-                )
-
+        if user and post:
             found_like = PostsModels.LikePost.objects.filter(Q(
-                user=user, status=status_value, post=post
+                user=user, post=post
             ))
 
             if found_like:
