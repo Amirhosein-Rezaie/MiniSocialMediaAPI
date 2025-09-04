@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'core',
     'users',
     'posts',
-    'rest_framework'
+    'rest_framework',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -135,4 +136,5 @@ AUTH_USER_MODEL = 'core.users'
 # drf settings
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "core.paginations.DynamicPagination",
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
