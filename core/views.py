@@ -28,30 +28,16 @@ class UserView(ModelViewSet):
         """,
         parameters=[
             OpenApiParameter(
-                name='username',
-                description="An example as normal field in search (?username=a)",
-                required=False,
+                name='username', description="An example as normal field in search (?username=a)", required=False,
             ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, CoreModels.Users)
         return super().list(request, *args, **kwargs)
 
-    @extend_schema(
-        description="""
-        This request doesn't do hard delete , do soft delete delete.
-        """
-    )
     def destroy(self, request, *args, **kwargs):
-        """
-        Soft delete a user.
-        """
         obj = self.get_object()
         obj.status = CoreModels.Users.Status.IS_DELETED
         obj.save()
@@ -73,22 +59,14 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
         """,
         parameters=[
             OpenApiParameter(
-                name='text',
-                description="An example as normal field in search (?text=abc)",
-                required=False,
+                name='text', description="An example as normal field in search (?text=abc)", required=False,
             ),
             OpenApiParameter(
-                name='user-id',
-                description="An example as foreign field in search (?user-id=1)",
-                required=False,
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, CoreModels.Texts)
         return super().list(request, *args, **kwargs)
@@ -106,22 +84,14 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         """,
         parameters=[
             OpenApiParameter(
-                name='caption',
-                description="An example as normal field in search (?caption=abc)",
-                required=False,
+                name='caption', description="An example as normal field in search (?caption=abc)", required=False,
             ),
             OpenApiParameter(
-                name='user-id',
-                description="An example as foreign field in search (?user-id=1)",
-                required=False,
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, CoreModels.Videos)
         return super().list(request, *args, **kwargs)
@@ -142,22 +112,14 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         """,
         parameters=[
             OpenApiParameter(
-                name='caption',
-                description="An example as normal field in search (?caption=abc)",
-                required=False,
+                name='caption', description="An example as normal field in search (?caption=abc)", required=False,
             ),
             OpenApiParameter(
-                name='user-id',
-                description="An example as foreign field in search (?user-id=1)",
-                required=False,
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, CoreModels.Images)
         return super().list(request, *args, **kwargs)
@@ -175,22 +137,14 @@ class PostsView(ModelViewSet):
         """,
         parameters=[
             OpenApiParameter(
-                name='title',
-                description="An example as normal field in search (?title=abc)",
-                required=False,
+                name='title', description="An example as normal field in search (?title=abc)", required=False,
             ),
             OpenApiParameter(
-                name='user-id',
-                description="An example as foreign field in search (?user-id=1)",
-                required=False,
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, CoreModels.Posts, CoreSerializers.Posts)
         return super().list(request, *args, **kwargs)
