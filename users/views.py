@@ -12,21 +12,28 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
 from core.helper import (dynamic_search)
+from drf_spectacular.utils import (
+    extend_schema, OpenApiParameter
+)
 
 
 # Follow APIs
 class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
-    """
-    A view for follow and unfollow users by themselves (create, update, get)
-    """
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the Follow.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='follower_user-id', description="An example as foreign field in search (?follower_user-id=1)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, UsersModels.Follow)
         return super().list(request, *args, **kwargs)
@@ -52,17 +59,24 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
 
 # Login APIs
 class LoginsView(ReadOnlyModelViewSet):
-    """
-    A view for set log about login tries by users
-    """
     serializer_class = UsersSerializers.LoginsSerializers
     queryset = UsersModels.Logins.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the Logins.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+            OpenApiParameter(
+                name='username', description="An example as foreign field in search (?username=abc)", required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
-        """
-        Return all of field.
-        search with query params.
-        """
         if request.query_params:
             return dynamic_search(self, request, UsersModels.Logins)
         return super().list(request, *args, **kwargs)
