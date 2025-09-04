@@ -11,16 +11,29 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
 from core.helper import (dynamic_search)
+from drf_spectacular.utils import (
+    extend_schema, OpenApiParameter,
+)
 
 
 # Users APIs
 class UserView(ModelViewSet):
-    """
-    A view for delete, create, get and update users
-    """
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of users returns all of the uesrs.
+        for search in them and all of fields (foreign, normal) can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='username',
+                description="An example as normal field in search (?username=a)",
+                required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
         """
         Return all of field.
@@ -30,6 +43,11 @@ class UserView(ModelViewSet):
             return dynamic_search(self, request, CoreModels.Users)
         return super().list(request, *args, **kwargs)
 
+    @extend_schema(
+        description="""
+        This request doesn't do hard delete , do soft delete delete.
+        """
+    )
     def destroy(self, request, *args, **kwargs):
         """
         Soft delete a user.
@@ -45,12 +63,27 @@ class UserView(ModelViewSet):
 
 # Texts APIs
 class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
-    """
-    A view for get and create texts
-    """
     serializer_class = CoreSerializers.TextsSerializer
     queryset = CoreModels.Texts.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of texts returns all of the texts.
+        for search in them and all of fields can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='text',
+                description="An example as normal field in search (?text=abc)",
+                required=False,
+            ),
+            OpenApiParameter(
+                name='user-id',
+                description="An example as foreign field in search (?user-id=1)",
+                required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
         """
         Return all of field.
@@ -63,12 +96,27 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
 
 # Videos APIs
 class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
-    """
-    A view for get and create video
-    """
     serializer_class = CoreSerializers.VideosSerializer
     queryset = CoreModels.Videos.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of videos returns all of the videos.
+        for search in them and all of fields can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='caption',
+                description="An example as normal field in search (?caption=abc)",
+                required=False,
+            ),
+            OpenApiParameter(
+                name='user-id',
+                description="An example as foreign field in search (?user-id=1)",
+                required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
         """
         Return all of field.
@@ -87,6 +135,24 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
     serializer_class = CoreSerializers.ImagesSerializer
     queryset = CoreModels.Images.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of images returns all of the images.
+        for search in them and all of fields can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='caption',
+                description="An example as normal field in search (?caption=abc)",
+                required=False,
+            ),
+            OpenApiParameter(
+                name='user-id',
+                description="An example as foreign field in search (?user-id=1)",
+                required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
         """
         Return all of field.
@@ -99,12 +165,27 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
 
 # Posts APIs
 class PostsView(ModelViewSet):
-    """
-    A view for delete, create, get and update posts
-    """
     serializer_class = CoreSerializers.PostsSerializer
     queryset = CoreModels.Posts.objects.all()
 
+    @extend_schema(
+        description="""
+        Get request of posts returns all of the posts.
+        for search in them and all of fields can use queryparmas.
+        """,
+        parameters=[
+            OpenApiParameter(
+                name='title',
+                description="An example as normal field in search (?title=abc)",
+                required=False,
+            ),
+            OpenApiParameter(
+                name='user-id',
+                description="An example as foreign field in search (?user-id=1)",
+                required=False,
+            ),
+        ]
+    )
     def list(self, request: Request, *args, **kwargs):
         """
         Return all of field.
