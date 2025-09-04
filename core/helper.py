@@ -8,6 +8,7 @@ from django.db.models import (ForeignKey, OneToOneField, ManyToManyField)
 from django.db.models import Q
 from rest_framework.pagination import PageNumberPagination
 from django.core.exceptions import FieldDoesNotExist, FieldError
+from core.paginations import (DynamicPagination)
 
 
 def update_status_value(request: Request, self, status_class: Choices, seriaizer: ModelSerializer):
@@ -45,7 +46,7 @@ def dynamic_search(self, request: Request, model: Model):
     # variables
     like = "istartswith"
     out_query_params = ['limit', 'page']
-    paginator = self.pagination_class
+    paginator = DynamicPagination()
     serializer = self.serializer_class
     equal_to_fields = ['id']
 
@@ -102,14 +103,7 @@ def dynamic_search(self, request: Request, model: Model):
                 )
 
         founds = model.objects.filter(query_search)
-
-        if paginator:
-            limit_paginate(request=request, pagination_class=paginator)
-            paginated_founds = paginator.paginate_queryset(founds, request)
-            serialize_found = serializer(paginated_founds, many=True)
-            return paginator.get_paginated_response(serialize_found.data)
-        else:
-            return Response(
-                serializer(founds, many=True).data,
-                status=status.HTTP_200_OK
-            )
+        limit_paginate(request=request, pagination_class=paginator)
+        paginated_founds = paginator.paginate_queryset(founds, request=request)
+        serialize_found = serializer(paginated_founds, many=True)
+        return paginator.get_paginated_response(serialize_found.data)
