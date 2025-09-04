@@ -21,6 +21,9 @@ from django.urls import (
 from drf_spectacular.views import (
     SpectacularAPIView, SpectacularSwaggerView
 )
+from MiniSocialMedia import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
@@ -29,4 +32,4 @@ urlpatterns = [
     path('core/', include('core.urls'), name='core_views'),
     path('posts/', include('posts.urls'), name='posts_views'),
     path('users/', include('users.urls'), name='users_api')
-]
+]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
