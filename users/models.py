@@ -7,10 +7,6 @@ class Follow(models.Model):
     """
     The model that users can follow each others
     """
-    class Status(models.TextChoices):
-        FOLLOEWED = 'FOLLOWED', 'followed'
-        UNFOLLOWED = 'UNFOLLOWED', 'unfollowed'
-
     follower_user = models.ForeignKey(
         to=Users, verbose_name='follower_user', null=False, blank=False, on_delete=models.DO_NOTHING,
         related_name='follower_user'
@@ -18,10 +14,6 @@ class Follow(models.Model):
     followed_user = models.ForeignKey(
         to=Users, verbose_name='followed_user', null=False, blank=False, on_delete=models.DO_NOTHING,
         related_name='followed_user'
-    )
-    status = models.CharField(
-        verbose_name='status', null=False, blank=False, choices=Status.choices,
-        default=Status.FOLLOEWED
     )
     created_at = models.DateField(
         verbose_name='created_at', auto_now_add=True
