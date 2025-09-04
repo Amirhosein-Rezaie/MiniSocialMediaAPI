@@ -130,3 +130,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.users'
+
+
+# drf settings
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "core.paginations.DynamicPagination",
+}
