@@ -15,11 +15,15 @@ class LogLoginMiddleware(MiddlewareMixin):
         """
         if request.path == '/users/token/' and request.method == 'POST':
             # Read the raw body of the request
-            body_bytes = request.body
+            body_bytes = request.body.strip()
 
             # Decode JSON and extract username
-            data = json.loads(body_bytes.decode('utf-8'))
-            username = data.get('username')
+            username = None
+            try:
+                data = json.loads(body_bytes.decode('utf-8'))
+                username = data.get('username')
+            except json.JSONDecodeError:
+                pass
 
             # Save username in the request for later use
             request._login_username = username
