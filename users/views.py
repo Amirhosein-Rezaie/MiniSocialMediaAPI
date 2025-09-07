@@ -155,3 +155,38 @@ class MyFollowers(APIView):
 
         # Return paginated response with serialized data
         return paginator.get_paginated_response(serialized_data.data)
+
+
+class MyFollowings(APIView):
+    """
+    API endpoint that returns a paginated list of the current user's followings.
+
+    - Requires the user to be authenticated with `IsUser` permission.
+    - Fetches all users that the current user is following.
+    - Only includes followings whose account status is ACTIVE.
+    - Supports dynamic pagination based on request parameters.
+    """
+    permission_classes = [IsUser]
+
+    def get(self, request: Request):
+        user = request.user
+
+        # Get the list of user IDs that the current user is following
+        followings_id_list = UsersModels.Follow.objects.filter(
+            Q(follower_user=user)
+        ).values_list('followed_user', flat=True)
+
+        # Filter active users from the followings list
+        users = Users.objects.filter(
+            Q(id__in=followings_id_list) & Q(status=Users.Status.ACTIVE)
+        )
+
+        # Apply dynamic pagination based on request parameters
+        paginator.page_size = limit_paginate(request, DynamicPagination)
+        paginated_data = paginator.paginate_queryset(users, request)
+
+        # Serialize the paginated followings data
+        serialized_data = UsersSerializer(paginated_data, many=True)
+
+        # Return paginated response with serialized followings
+        return paginator.get_paginated_response(serialized_data.data)
