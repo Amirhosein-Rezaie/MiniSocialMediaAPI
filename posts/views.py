@@ -9,13 +9,16 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (dynamic_search, set_queryset)
+from core.helper import (dynamic_search, set_queryset, limit_paginate)
 from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
 from core.permissions import (IsUser)
-from core.models import (Users)
+from core.models import (Users, Posts)
+from core.serializers import (PostsSerializer)
+from rest_framework.views import APIView
+from core.paginations import DynamicPagination
 
 
 # Albums APIs
@@ -282,3 +285,45 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
                 {"detail": "user and post are required."},
                 status=Status.HTTP_400_BAD_REQUEST
             )
+
+
+paginator = DynamicPagination()
+
+
+class LikedPostsUser(APIView):
+    """
+    API endpoint that returns a paginated list of posts liked by the current user.
+
+    - Requires the user to be authenticated with `IsUser` permission.
+    - Retrieves all posts that the current user has liked.
+    - Supports dynamic pagination based on request parameters.
+    """
+    permission_classes = [IsUser]
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='limit', type=int, required=False, description="set page_size"
+            )
+        ],
+        responses=PostsSerializer(many=True)
+    )
+    def get(self, request: Request):
+        user = request.user
+
+        # Get all posts that the current user has liked
+        posts = Posts.objects.filter(
+            Q(id__in=PostsModels.LikePost.objects.filter(
+                Q(user=user)
+            ).values_list('post', flat=True))
+        )
+
+        # Apply dynamic pagination based on request parameters
+        paginator.page_size = limit_paginate(request, DynamicPagination)
+        paginated_data = paginator.paginate_queryset(posts, request)
+
+        # Serialize the paginated posts data
+        serialized_data = PostsSerializer(paginated_data, many=True)
+
+        # Return paginated response with serialized liked posts
+        return paginator.get_paginated_response(serialized_data.data)

@@ -13,4 +13,5 @@ router.register(r'view-post', views.ViewPostView, basename='view-post')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('liked-posts-user/', views.LikedPostsUser.as_view(), name='liked-posts-user'),
 ]
