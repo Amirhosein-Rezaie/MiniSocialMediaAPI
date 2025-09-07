@@ -14,12 +14,26 @@ from core.helper import (dynamic_search)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter,
 )
+from core.permissions import (
+    IsAdmin,
+)
 
 
 # Users APIs
 class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
+
+    def get_queryset(self):
+        request = self.request
+
+        try:
+            if request.user.role == CoreModels.Users.Roles.USER:
+                return CoreModels.Users.objects.filter(id=request.user.pk)
+        except:
+            pass
+
+        return super().get_queryset()
 
     @extend_schema(
         description="""
@@ -52,6 +66,25 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
     serializer_class = CoreSerializers.TextsSerializer
     queryset = CoreModels.Texts.objects.all()
 
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['DELETE']:
+            return [IsAdmin]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        request = self.request
+
+        try:
+            if request.user.role == CoreModels.Users.Roles.USER:
+                return CoreModels.Texts.objects.filter(user=request.user)
+        except:
+            pass
+
+        return super().get_queryset()
+
     @extend_schema(
         description="""
         Get request of texts returns all of the texts.
@@ -76,6 +109,25 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
 class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
     serializer_class = CoreSerializers.VideosSerializer
     queryset = CoreModels.Videos.objects.all()
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['DELETE']:
+            return [IsAdmin]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        request = self.request
+
+        try:
+            if request.user.role == CoreModels.Users.Roles.USER:
+                return CoreModels.Videos.objects.filter(user=request.user)
+        except:
+            pass
+
+        return super().get_queryset()
 
     @extend_schema(
         description="""
@@ -105,6 +157,25 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
     serializer_class = CoreSerializers.ImagesSerializer
     queryset = CoreModels.Images.objects.all()
 
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['DELETE']:
+            return [IsAdmin]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        request = self.request
+
+        try:
+            if request.user.role == CoreModels.Users.Roles.USER:
+                return CoreModels.Images.objects.filter(user=request.user)
+        except:
+            pass
+
+        return super().get_queryset()
+
     @extend_schema(
         description="""
         Get request of images returns all of the images.
@@ -129,6 +200,17 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
 class PostsView(ModelViewSet):
     serializer_class = CoreSerializers.PostsSerializer
     queryset = CoreModels.Posts.objects.all()
+
+    def get_queryset(self):
+        request = self.request
+
+        try:
+            if request.user.role == CoreModels.Users.Roles.USER:
+                return CoreModels.Posts.objects.filter(user=request.user)
+        except:
+            pass
+
+        return super().get_queryset()
 
     @extend_schema(
         description="""
