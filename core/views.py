@@ -10,7 +10,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search)
+from core.helper import (dynamic_search, queryset_user)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter,
 )
@@ -23,17 +23,6 @@ from core.permissions import (
 class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
-
-    def get_queryset(self):
-        request = self.request
-
-        try:
-            if request.user.role == CoreModels.Users.Roles.USER:
-                return CoreModels.Users.objects.filter(id=request.user.pk)
-        except:
-            pass
-
-        return super().get_queryset()
 
     @extend_schema(
         description="""
@@ -66,24 +55,8 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
     serializer_class = CoreSerializers.TextsSerializer
     queryset = CoreModels.Texts.objects.all()
 
-    def get_permissions(self):
-        request = self.request
-
-        if request.method in ['DELETE']:
-            return [IsAdmin]
-
-        return super().get_permissions()
-
     def get_queryset(self):
-        request = self.request
-
-        try:
-            if request.user.role == CoreModels.Users.Roles.USER:
-                return CoreModels.Texts.objects.filter(user=request.user)
-        except:
-            pass
-
-        return super().get_queryset()
+        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user, CoreModels.Texts)
 
     @extend_schema(
         description="""
@@ -119,15 +92,7 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         return super().get_permissions()
 
     def get_queryset(self):
-        request = self.request
-
-        try:
-            if request.user.role == CoreModels.Users.Roles.USER:
-                return CoreModels.Videos.objects.filter(user=request.user)
-        except:
-            pass
-
-        return super().get_queryset()
+        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Videos)
 
     @extend_schema(
         description="""
@@ -166,15 +131,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         return super().get_permissions()
 
     def get_queryset(self):
-        request = self.request
-
-        try:
-            if request.user.role == CoreModels.Users.Roles.USER:
-                return CoreModels.Images.objects.filter(user=request.user)
-        except:
-            pass
-
-        return super().get_queryset()
+        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Images)
 
     @extend_schema(
         description="""
@@ -202,15 +159,7 @@ class PostsView(ModelViewSet):
     queryset = CoreModels.Posts.objects.all()
 
     def get_queryset(self):
-        request = self.request
-
-        try:
-            if request.user.role == CoreModels.Users.Roles.USER:
-                return CoreModels.Posts.objects.filter(user=request.user)
-        except:
-            pass
-
-        return super().get_queryset()
+        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)
 
     @extend_schema(
         description="""
