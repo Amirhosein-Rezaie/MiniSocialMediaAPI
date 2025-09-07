@@ -133,6 +133,14 @@ class MyFollowers(APIView):
     """
     permission_classes = [IsUser]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='limit', type=int, required=False, description="set page_size of pagination."
+            )
+        ],
+        responses=UsersSerializer(many=True)
+    )
     def get(self, request: Request):
         user = request.user
 
@@ -168,6 +176,14 @@ class MyFollowings(APIView):
     """
     permission_classes = [IsUser]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='limit', type=int, required=False, description="set page_size of pagination."
+            )
+        ],
+        responses=UsersSerializer(many=True)
+    )
     def get(self, request: Request):
         user = request.user
 
