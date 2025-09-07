@@ -15,4 +15,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('token/', views.TokenObtianView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('my-followers/', views.MyFollowers.as_view(), name='token_refresh'),
 ]

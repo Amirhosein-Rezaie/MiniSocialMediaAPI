@@ -11,7 +11,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search, set_queryset)
+from core.helper import (dynamic_search, set_queryset, limit_paginate)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
@@ -22,6 +22,9 @@ from core.permissions import (
     IsAnonymous, IsUser
 )
 from core.models import Users
+from core.serializers import UsersSerializer
+from rest_framework.views import APIView
+from core.paginations import DynamicPagination
 
 
 # Follow APIs
@@ -89,7 +92,7 @@ class LoginsView(ReadOnlyModelViewSet):
     queryset = UsersModels.Logins.objects.all()
 
     def get_queryset(self):
-        return set_queryset(self,Users.Roles.USER,'user',self.request.user.pk, UsersModels.Logins)
+        return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, UsersModels.Logins)
 
     @extend_schema(
         description="""
@@ -114,3 +117,41 @@ class LoginsView(ReadOnlyModelViewSet):
 # generate token view
 class TokenObtianView(TokenObtainPairView):
     permission_classes = [IsAnonymous]
+
+
+paginator = DynamicPagination()
+
+
+class MyFollowers(APIView):
+    """
+    API endpoint that returns a paginated list of the current user's followers.
+
+    - Requires the user to be authenticated with `IsUser` permission.
+    - Fetches all users who follow the current user.
+    - Only includes followers whose account status is ACTIVE.
+    - Supports dynamic pagination based on request parameters.
+    """
+    permission_classes = [IsUser]
+
+    def get(self, request: Request):
+        user = request.user
+
+        # Get the list of user IDs who follow the current user
+        followers_id_list = UsersModels.Follow.objects.filter(
+            Q(followed_user=user)
+        ).values_list('follower_user', flat=True)
+
+        # Filter active users from the followers list
+        users = Users.objects.filter(
+            Q(id__in=followers_id_list) & Q(status=Users.Status.ACTIVE)
+        )
+
+        # Apply dynamic pagination based on request parameters
+        paginator.page_size = limit_paginate(request, DynamicPagination)
+        paginated_data = paginator.paginate_queryset(users, request)
+
+        # Serialize the paginated users data
+        serialized_data = UsersSerializer(paginated_data, many=True)
+
+        # Return paginated response with serialized data
+        return paginator.get_paginated_response(serialized_data.data)
