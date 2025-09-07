@@ -7,6 +7,24 @@ from core import models as CoreModels
 class UsersSerializer(ModelSerializer):
     password = CharField(write_only=True)
 
+    def create(self, validated_data):
+        # pop password and hash it
+        password = validated_data.pop("password", None)
+        user = super().create(validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        # pop password and hash it
+        password = validated_data.pop("password", None)
+        user = super().update(instance, validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+        return user
+
     class Meta:
         model = CoreModels.Users
         fields = '__all__'

@@ -37,7 +37,7 @@ class Users(AbstractUser):
         verbose_name='role', max_length=150, choices=Roles.choices, default=Roles.USER
     )
     profile = models.ImageField(
-        verbose_name='profile', upload_to='profiles/'
+        verbose_name='profile', upload_to='profiles/', null=True, blank=True
     )
     status = models.CharField(
         max_length=150, choices=Status, default=Status.ACTIVE, null=False, blank=False
