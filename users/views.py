@@ -15,6 +15,12 @@ from core.helper import (dynamic_search)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView
+)
+from core.permissions import (
+    IsAnonymous
+)
 
 
 # Follow APIs
@@ -80,3 +86,8 @@ class LoginsView(ReadOnlyModelViewSet):
         if request.query_params:
             return dynamic_search(self, request, UsersModels.Logins)
         return super().list(request, *args, **kwargs)
+
+
+# generate token view
+class TokenObtianView(TokenObtainPairView):
+    permission_classes = [IsAnonymous]
