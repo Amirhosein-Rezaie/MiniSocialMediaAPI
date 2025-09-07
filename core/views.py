@@ -10,7 +10,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search, queryset_user)
+from core.helper import (dynamic_search, set_queryset)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter,
 )
@@ -56,7 +56,7 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
     queryset = CoreModels.Texts.objects.all()
 
     def get_queryset(self):
-        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user, CoreModels.Texts)
+        return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user, CoreModels.Texts)
 
     @extend_schema(
         description="""
@@ -92,7 +92,7 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         return super().get_permissions()
 
     def get_queryset(self):
-        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Videos)
+        return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Videos)
 
     @extend_schema(
         description="""
@@ -131,7 +131,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         return super().get_permissions()
 
     def get_queryset(self):
-        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Images)
+        return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Images)
 
     @extend_schema(
         description="""
@@ -159,7 +159,7 @@ class PostsView(ModelViewSet):
     queryset = CoreModels.Posts.objects.all()
 
     def get_queryset(self):
-        return queryset_user(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)
+        return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)
 
     @extend_schema(
         description="""

@@ -9,7 +9,7 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (dynamic_search, queryset_user)
+from core.helper import (dynamic_search, set_queryset)
 from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
@@ -32,7 +32,7 @@ class AlbumsView(ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Albums)
+        return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Albums)
 
     @extend_schema(
         description="""
@@ -82,7 +82,7 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
         return super().get_permissions()
 
     def get_queryset(self):
-        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.SavePosts)
+        return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.SavePosts)
 
     @extend_schema(
         description="""
@@ -138,7 +138,7 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
     queryset = PostsModels.LikePost.objects.all()
 
     def get_queryset(self):
-        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.LikePost)
+        return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.LikePost)
 
     def get_permissions(self):
         request = self.request
@@ -189,7 +189,7 @@ class CommentsView(ModelViewSet):
     queryset = PostsModels.Comments.objects.all()
 
     def get_queryset(self):
-        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Comments)
+        return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Comments)
 
     def get_permissions(self):
         request = self.request
@@ -243,7 +243,7 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
         return super().get_permissions()
 
     def get_queryset(self):
-        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.ViewPost)
+        return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.ViewPost)
 
     @extend_schema(
         description="""
