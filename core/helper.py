@@ -107,3 +107,17 @@ def dynamic_search(self, request: Request, model: Model):
         paginated_founds = paginator.paginate_queryset(founds, request=request)
         serialize_found = serializer(paginated_founds, many=True)
         return paginator.get_paginated_response(serialize_found.data)
+
+
+def queryset_user(self, role, model: Model):
+    """
+    A function that checks the role of user in request equals to something.
+    and returns a queryset of the model base on the user's role.
+    """
+    try:
+        if self.request.user.role == role:
+            return model.objects.filter(user=self.request.user)
+    except:
+        pass
+
+    return self.queryset
