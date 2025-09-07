@@ -109,14 +109,14 @@ def dynamic_search(self, request: Request, model: Model):
         return paginator.get_paginated_response(serialize_found.data)
 
 
-def queryset_user(self, role, model: Model):
+def queryset_user(self, role, field, check_field, model: Model):
     """
     A function that checks the role of user in request equals to something.
     and returns a queryset of the model base on the user's role.
     """
     try:
         if self.request.user.role == role:
-            return model.objects.filter(user=self.request.user)
+            return model.objects.filter(Q(**{f"{field}": f"{check_field}"}))
     except:
         pass
 
