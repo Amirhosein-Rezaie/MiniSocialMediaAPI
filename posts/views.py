@@ -9,17 +9,30 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (dynamic_search)
+from core.helper import (dynamic_search, queryset_user)
 from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
+from core.permissions import (IsUser)
+from core.models import (Users)
 
 
 # Albums APIs
 class AlbumsView(ModelViewSet):
     serializer_class = PostsSerializers.AlbumsSerializer
     queryset = PostsModels.Albums.objects.all()
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['POST', 'DELETE', 'UPDATE']:
+            return [IsUser()]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Albums)
 
     @extend_schema(
         description="""
@@ -59,6 +72,17 @@ class AlbumsView(ModelViewSet):
 class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin):
     serializer_class = PostsSerializers.SavePostSerializer
     queryset = PostsModels.SavePosts.objects.all()
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['POST', 'DELETE']:
+            return [IsUser()]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.SavePosts)
 
     @extend_schema(
         description="""
@@ -113,6 +137,17 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
     serializer_class = PostsSerializers.LikePostSerializer
     queryset = PostsModels.LikePost.objects.all()
 
+    def get_queryset(self):
+        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.LikePost)
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['POST', 'DELETE',]:
+            return [IsUser()]
+
+        return super().get_permissions()
+
     @extend_schema(
         description="""
         Get request of users returns all of the LikePost.
@@ -153,6 +188,17 @@ class CommentsView(ModelViewSet):
     serializer_class = PostsSerializers.CommentsSerializer
     queryset = PostsModels.Comments.objects.all()
 
+    def get_queryset(self):
+        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Comments)
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['POST', 'DELETE', 'UPDATE']:
+            return [IsUser()]
+
+        return super().get_permissions()
+
     @extend_schema(
         description="""
         Get request of users returns all of the Comments.
@@ -187,6 +233,17 @@ class CommentsView(ModelViewSet):
 class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = PostsSerializers.ViewPostSerializer
     queryset = PostsModels.ViewPost.objects.all()
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['POST']:
+            return [IsUser()]
+
+        return super().get_permissions()
+
+    def get_queryset(self):
+        return queryset_user(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.ViewPost)
 
     @extend_schema(
         description="""
