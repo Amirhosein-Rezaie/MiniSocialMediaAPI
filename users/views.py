@@ -11,7 +11,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search)
+from core.helper import (dynamic_search, set_queryset)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
@@ -19,14 +19,34 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView
 )
 from core.permissions import (
-    IsAnonymous
+    IsAnonymous, IsUser
 )
+from core.models import Users
 
 
 # Follow APIs
 class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
+
+    def get_queryset(self):
+        request = self.request
+
+        if request.user.role == Users.Roles.USER:
+            return UsersModels.Follow.objects.filter(
+                Q(follower_user=request.user.pk) |
+                Q(followed_user=request.user.pk)
+            )
+
+        return super().get_queryset()
+
+    def get_permissions(self):
+        request = self.request
+
+        if request.method in ['POST', 'DELETE']:
+            return [IsUser()]
+
+        return super().get_permissions()
 
     @extend_schema(
         description="""
@@ -67,6 +87,9 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
 class LoginsView(ReadOnlyModelViewSet):
     serializer_class = UsersSerializers.LoginsSerializers
     queryset = UsersModels.Logins.objects.all()
+
+    def get_queryset(self):
+        return set_queryset(self,Users.Roles.USER,'user',self.request.user.pk, UsersModels.Logins)
 
     @extend_schema(
         description="""
