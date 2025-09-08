@@ -17,15 +17,16 @@ from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
 from core.permissions import (
-    IsAdmin, IsAnonymous, IsSelfOrReadOnlyUsers
+    IsAdmin, IsAnonymous, IsSelfOrReadOnly, IsActive
 )
+from rest_framework.permissions import IsAuthenticated
 
 
 # Users APIs
 class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
-    permission_classes = [IsSelfOrReadOnlyUsers]
+    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
 
     @extend_schema(
         description="""
@@ -190,6 +191,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
 class PostsView(ModelViewSet):
     serializer_class = CoreSerializers.PostsSerializer
     queryset = CoreModels.Posts.objects.all()
+    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
 
     def get_queryset(self):
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)
