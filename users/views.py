@@ -19,18 +19,20 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView
 )
 from core.permissions import (
-    IsAnonymous, IsUser
+    IsActive, IsAnonymous, IsSelfOrReadOnly, IsUser
 )
 from core.models import Users
 from core.serializers import UsersSerializer
 from rest_framework.views import APIView
 from core.paginations import DynamicPagination
+from rest_framework.permissions import IsAuthenticated
 
 
 # Follow APIs
 class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
+    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
 
     def get_queryset(self):
         request = self.request
