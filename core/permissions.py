@@ -3,14 +3,18 @@ from rest_framework.permissions import (
 )
 from core.models import Users
 from rest_framework.request import Request
+from rest_framework.exceptions import PermissionDenied
 
 
 # is active user
 class IsActive(BasePermission):
     def has_permission(self, request: Request, view):
-        return bool(
-            request.user.status == Users.Status.ACTIVE
-        )
+        if request.user.status == Users.Status.ACTIVE:
+            return True
+        else:
+            raise PermissionDenied(
+                detail=f"Your account is {request.user.status}", code=403
+            )
 
 
 # Is amdin
@@ -39,7 +43,7 @@ class IsAnonymous(BasePermission):
 
 
 # just allow PUT, DELETE, PATCH methods for owen user
-class IsSelfOrReadOnlyUsers(BasePermission):
+class IsSelfOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
