@@ -5,6 +5,9 @@ from users import models as UsersModels
 from core.serializers import (
     UsersSerializer,
 )
+from core.models import Users
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class FollowSerializer(ModelSerializer):
@@ -26,3 +29,15 @@ class LoginsSerializers(ModelSerializer):
     class Meta:
         model = UsersModels.Logins
         fields = '__all__'
+
+
+class TokenSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        if self.user.status != Users.Status.ACTIVE:
+            raise AuthenticationFailed(
+                detail="Your account is not ACTIVE.",
+            )
+
+        return data
