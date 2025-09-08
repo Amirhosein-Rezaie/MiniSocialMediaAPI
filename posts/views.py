@@ -14,17 +14,19 @@ from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
-from core.permissions import (IsUser)
+from core.permissions import (IsActive, IsSelfOrReadOnly, IsUser)
 from core.models import (Users, Posts)
 from core.serializers import (PostsSerializer)
 from rest_framework.views import APIView
 from core.paginations import DynamicPagination
+from rest_framework.permissions import IsAuthenticated
 
 
 # Albums APIs
 class AlbumsView(ModelViewSet):
     serializer_class = PostsSerializers.AlbumsSerializer
     queryset = PostsModels.Albums.objects.all()
+    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
 
     def get_permissions(self):
         request = self.request
