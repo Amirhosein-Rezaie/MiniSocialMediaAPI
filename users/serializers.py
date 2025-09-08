@@ -37,7 +37,7 @@ class TokenSerializer(TokenObtainPairSerializer):
 
         if self.user.status != Users.Status.ACTIVE:
             raise AuthenticationFailed(
-                detail="Your account is not ACTIVE.",
+                detail=f"Your account is {self.user.status}.",
             )
 
         return data
