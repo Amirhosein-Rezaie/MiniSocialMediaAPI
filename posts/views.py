@@ -49,6 +49,12 @@ class AlbumsView(ModelViewSet):
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -95,6 +101,12 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
         parameters=[
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
             ),
         ]
     )
@@ -160,6 +172,12 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -214,6 +232,12 @@ class CommentsView(ModelViewSet):
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -256,6 +280,12 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
         parameters=[
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
             ),
         ]
     )
@@ -304,7 +334,13 @@ class LikedPostsUser(APIView):
         parameters=[
             OpenApiParameter(
                 name='limit', type=int, required=False, description="set page_size"
-            )
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ],
         responses=PostsSerializer(many=True)
     )

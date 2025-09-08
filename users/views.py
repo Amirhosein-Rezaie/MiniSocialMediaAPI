@@ -60,6 +60,12 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
             OpenApiParameter(
                 name='follower_user-id', description="An example as foreign field in search (?follower_user-id=1)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -106,6 +112,12 @@ class LoginsView(ReadOnlyModelViewSet):
             OpenApiParameter(
                 name='username', description="An example as foreign field in search (?username=abc)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -137,7 +149,13 @@ class MyFollowers(APIView):
         parameters=[
             OpenApiParameter(
                 name='limit', type=int, required=False, description="set page_size of pagination."
-            )
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ],
         responses=UsersSerializer(many=True)
     )
@@ -180,7 +198,10 @@ class MyFollowings(APIView):
         parameters=[
             OpenApiParameter(
                 name='limit', type=int, required=False, description="set page_size of pagination."
-            )
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
         ],
         responses=UsersSerializer(many=True)
     )

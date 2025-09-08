@@ -33,6 +33,12 @@ class UserView(ModelViewSet):
             OpenApiParameter(
                 name='username', description="An example as normal field in search (?username=a)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -70,6 +76,12 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -105,6 +117,12 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
             ),
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
             ),
         ]
     )
@@ -145,6 +163,12 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
             ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
         ]
     )
     def list(self, request: Request, *args, **kwargs):
@@ -172,6 +196,12 @@ class PostsView(ModelViewSet):
             ),
             OpenApiParameter(
                 name='user-id', description="An example as foreign field in search (?user-id=1)", required=False,
+            ),
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
             ),
         ]
     )
