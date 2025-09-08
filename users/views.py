@@ -129,6 +129,7 @@ class LoginsView(ReadOnlyModelViewSet):
 # generate token view
 class TokenObtianView(TokenObtainPairView):
     permission_classes = [IsAnonymous]
+    serializer_class = UsersSerializers.TokenSerializer
 
 
 paginator = DynamicPagination()
