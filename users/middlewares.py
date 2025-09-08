@@ -5,6 +5,9 @@ from django.utils.deprecation import MiddlewareMixin
 from io import BytesIO
 
 
+TOKEN_USER = '/users/token/'
+
+
 class LogLoginMiddleware(MiddlewareMixin):
     def process_request(self, request):
         """
@@ -13,7 +16,7 @@ class LogLoginMiddleware(MiddlewareMixin):
         extracts the username, and saves it on the request object
         for later use in process_response.
         """
-        if request.path == '/users/token/' and request.method == 'POST':
+        if request.path == TOKEN_USER and request.method == 'POST':
             # Read the raw body of the request
             body_bytes = request.body.strip()
 
@@ -38,7 +41,7 @@ class LogLoginMiddleware(MiddlewareMixin):
         marking it as SUCCESS if the response status code is 200,
         otherwise as FAIL.
         """
-        if request.path == '/users/token/' and request.method == 'POST':
+        if request.path == TOKEN_USER and request.method == 'POST':
             # Get the username saved in process_request
             username = getattr(request, '_login_username', None)
 
