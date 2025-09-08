@@ -10,12 +10,14 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search, set_queryset)
+from core.helper import (
+    dynamic_search, set_queryset
+)
 from drf_spectacular.utils import (
-    extend_schema, OpenApiParameter,
+    extend_schema, OpenApiParameter
 )
 from core.permissions import (
-    IsAdmin,
+    IsAdmin, IsAnonymous, IsSelfOrReadOnlyUsers
 )
 
 
@@ -23,6 +25,7 @@ from core.permissions import (
 class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
+    permission_classes = [IsSelfOrReadOnlyUsers]
 
     @extend_schema(
         description="""
@@ -54,6 +57,12 @@ class UserView(ModelViewSet):
             data=CoreSerializers.UsersSerializer(obj).data,
             status=status.HTTP_200_OK
         )
+
+    def get_permissions(self):
+        if self.request.method in ['POST']:
+            return [IsAnonymous()]
+
+        return super().get_permissions()
 
 
 # Texts APIs
