@@ -1,5 +1,5 @@
 from rest_framework.permissions import (
-    BasePermission, IsAuthenticated
+    BasePermission, IsAuthenticated, SAFE_METHODS
 )
 from core.models import Users
 from rest_framework.request import Request
@@ -36,3 +36,11 @@ class IsAnonymous(BasePermission):
         return bool(
             not IsAuthenticated.has_permission(self, request, view)
         )
+
+
+# just allow PUT, DELETE, PATCH methods for owen user
+class IsSelfOrReadOnlyUsers(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return obj.id == request.user.id
