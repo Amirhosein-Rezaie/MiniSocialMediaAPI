@@ -9,7 +9,8 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (ONLY_USER_PERMISSIONS, dynamic_search, set_queryset)
+from core.helper import (IS_SELF_OR_READONLY_PERMISSIONS,
+                         ONLY_USER_PERMISSIONS, dynamic_search, set_queryset)
 from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
@@ -28,7 +29,7 @@ from rest_framework.permissions import IsAuthenticated
 class AlbumsView(ModelViewSet):
     serializer_class = PostsSerializers.AlbumsSerializer
     queryset = PostsModels.Albums.objects.all()
-    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     def get_permissions(self):
         request = self.request
@@ -79,6 +80,10 @@ class AlbumsView(ModelViewSet):
         instance.title = update_field_value
         instance.save(update_fields=['title'])
         return Response(PostsSerializers.AlbumsSerializer(instance).data, status=Status.HTTP_200_OK)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
 
 
 # SavePosts APIs
@@ -150,6 +155,10 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
 
         return super().create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
 
 # LikePost APIs
 class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, DestroyModelMixin, GenericViewSet):
@@ -207,6 +216,10 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
 
         return super().create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
 
 # Comments APIs
 class CommentsView(ModelViewSet):
@@ -260,6 +273,10 @@ class CommentsView(ModelViewSet):
         instance.save(update_fields=['comment'])
         return Response(PostsSerializers.CommentsSerializer(instance).data, status=Status.HTTP_200_OK)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
 
 class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = PostsSerializers.ViewPostSerializer
@@ -300,7 +317,7 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
 
     def create(self, request: Request, *args, **kwargs):
         data = request.data
-        user = data.get('user')
+        user = request.user.pk
         post = data.get('post')
 
         if user and post:
@@ -319,6 +336,10 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
                 {"detail": "user and post are required."},
                 status=Status.HTTP_400_BAD_REQUEST
             )
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
 
 
 @extend_schema(
@@ -382,3 +403,7 @@ class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
         )
 
         return posts
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
