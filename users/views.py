@@ -11,7 +11,9 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search, set_queryset, ONLY_USER_PERMISSIONS)
+from core.helper import (
+    IS_SELF_OR_READONLY_PERMISSIONS, dynamic_search, set_queryset, ONLY_USER_PERMISSIONS
+)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
@@ -32,7 +34,7 @@ from rest_framework.permissions import IsAuthenticated
 class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
-    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     def get_queryset(self):
         request = self.request
