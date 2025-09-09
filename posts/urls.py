@@ -10,6 +10,7 @@ router.register(r'save-posts', views.SavePostsView, basename='save-posts')
 router.register(r'like-posts', views.LikePostView, basename='like-posts')
 router.register(r'comments', views.CommentsView, basename='comments')
 router.register(r'view-post', views.ViewPostView, basename='view-post')
+router.register(r'commented-posts', views.CommentedPostsUser, basename='commented-posts')
 
 urlpatterns = [
     path('', include(router.urls)),

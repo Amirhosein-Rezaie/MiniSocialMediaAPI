@@ -365,3 +365,20 @@ class LikedPostsUser(APIView):
 
         # Return paginated response with serialized liked posts
         return paginator.get_paginated_response(serialized_data.data)
+
+
+# posts that are commented by the authenticated by user
+class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = PostsSerializer
+    permission_classes = [IsActive, IsUser, IsAuthenticated]
+
+    def get_queryset(self):
+        request = self.request
+
+        posts = Posts.objects.filter(
+            Q(id__in=PostsModels.Comments.objects.filter(
+                Q(user=request.user.pk)
+            ).values_list('post', flat=True))
+        )
+
+        return posts
