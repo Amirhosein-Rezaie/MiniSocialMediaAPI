@@ -9,16 +9,18 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (dynamic_search, set_queryset, limit_paginate)
+from core.helper import (dynamic_search, set_queryset)
 from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
 from core.permissions import (IsActive, IsSelfOrReadOnly, IsUser)
-from core.models import (Users, Posts)
-from core.serializers import (PostsSerializer)
-from rest_framework.views import APIView
-from core.paginations import DynamicPagination
+from core.models import (
+    Users, Posts
+)
+from core.serializers import (
+    PostsSerializer
+)
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -319,10 +321,18 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
             )
 
 
-paginator = DynamicPagination()
-
-
-class LikedPostsUser(APIView):
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+    ],
+    responses=PostsSerializer(many=True)
+)
+class LikedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     """
     API endpoint that returns a paginated list of posts liked by the current user.
 
@@ -330,38 +340,19 @@ class LikedPostsUser(APIView):
     - Retrieves all posts that the current user has liked.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = [IsUser]
+    permission_classes = [IsUser, IsActive, IsAuthenticated]
+    serializer_class = PostsSerializer
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name='page', type=int, description="Page number to return.", required=False,
-            ),
-            OpenApiParameter(
-                name='limit', type=int, description="Number of items per page.", required=False,
-            ),
-        ],
-        responses=PostsSerializer(many=True)
-    )
-    def get(self, request: Request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
 
         # Get all posts that the current user has liked
         posts = Posts.objects.filter(
             Q(id__in=PostsModels.LikePost.objects.filter(
-                Q(user=user)
+                Q(user=user.pk)
             ).values_list('post', flat=True))
         )
-
-        # Apply dynamic pagination based on request parameters
-        paginator.page_size = limit_paginate(request, DynamicPagination)
-        paginated_data = paginator.paginate_queryset(posts, request)
-
-        # Serialize the paginated posts data
-        serialized_data = PostsSerializer(paginated_data, many=True)
-
-        # Return paginated response with serialized liked posts
-        return paginator.get_paginated_response(serialized_data.data)
+        return posts
 
 
 # posts that are commented by the authenticated by user
