@@ -340,7 +340,7 @@ class LikedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     - Retrieves all posts that the current user has liked.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = [IsUser, IsActive, IsAuthenticated]
+    permission_classes = ONLY_USER_PERMISSIONS
     serializer_class = PostsSerializer
 
     def get_queryset(self):
