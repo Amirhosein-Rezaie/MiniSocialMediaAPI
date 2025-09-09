@@ -11,7 +11,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
-from core.helper import (dynamic_search, set_queryset, limit_paginate)
+from core.helper import (dynamic_search, set_queryset, ONLY_USER_PERMISSIONS)
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
@@ -134,10 +134,21 @@ class TokenObtianView(TokenObtainPairView):
     serializer_class = UsersSerializers.TokenSerializer
 
 
-paginator = DynamicPagination()
-
-
-class MyFollowers(APIView):
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name='limit', type=int, required=False, description="set page_size of pagination."
+        ),
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+    ],
+    responses=UsersSerializer(many=True)
+)
+class MyFollowers(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     """
     API endpoint that returns a paginated list of the current user's followers.
 
@@ -146,24 +157,11 @@ class MyFollowers(APIView):
     - Only includes followers whose account status is ACTIVE.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = [IsUser]
+    permission_classes = ONLY_USER_PERMISSIONS
+    serializer_class = UsersSerializer
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name='limit', type=int, required=False, description="set page_size of pagination."
-            ),
-            OpenApiParameter(
-                name='page', type=int, description="Page number to return.", required=False,
-            ),
-            OpenApiParameter(
-                name='limit', type=int, description="Number of items per page.", required=False,
-            ),
-        ],
-        responses=UsersSerializer(many=True)
-    )
-    def get(self, request: Request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
 
         # Get the list of user IDs who follow the current user
         followers_id_list = UsersModels.Follow.objects.filter(
@@ -174,19 +172,21 @@ class MyFollowers(APIView):
         users = Users.objects.filter(
             Q(id__in=followers_id_list) & Q(status=Users.Status.ACTIVE)
         )
-
-        # Apply dynamic pagination based on request parameters
-        paginator.page_size = limit_paginate(request, DynamicPagination)
-        paginated_data = paginator.paginate_queryset(users, request)
-
-        # Serialize the paginated users data
-        serialized_data = UsersSerializer(paginated_data, many=True)
-
-        # Return paginated response with serialized data
-        return paginator.get_paginated_response(serialized_data.data)
+        return users
 
 
-class MyFollowings(APIView):
+@extend_schema(
+    parameters=[
+        OpenApiParameter(
+            name='limit', type=int, required=False, description="set page_size of pagination."
+        ),
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+    ],
+    responses=UsersSerializer(many=True)
+)
+class MyFollowings(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     """
     API endpoint that returns a paginated list of the current user's followings.
 
@@ -195,21 +195,11 @@ class MyFollowings(APIView):
     - Only includes followings whose account status is ACTIVE.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = [IsUser]
+    permission_classes = ONLY_USER_PERMISSIONS
+    serializer_class = UsersSerializer
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name='limit', type=int, required=False, description="set page_size of pagination."
-            ),
-            OpenApiParameter(
-                name='page', type=int, description="Page number to return.", required=False,
-            ),
-        ],
-        responses=UsersSerializer(many=True)
-    )
-    def get(self, request: Request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
 
         # Get the list of user IDs that the current user is following
         followings_id_list = UsersModels.Follow.objects.filter(
@@ -220,13 +210,4 @@ class MyFollowings(APIView):
         users = Users.objects.filter(
             Q(id__in=followings_id_list) & Q(status=Users.Status.ACTIVE)
         )
-
-        # Apply dynamic pagination based on request parameters
-        paginator.page_size = limit_paginate(request, DynamicPagination)
-        paginated_data = paginator.paginate_queryset(users, request)
-
-        # Serialize the paginated followings data
-        serialized_data = UsersSerializer(paginated_data, many=True)
-
-        # Return paginated response with serialized followings
-        return paginator.get_paginated_response(serialized_data.data)
+        return users
