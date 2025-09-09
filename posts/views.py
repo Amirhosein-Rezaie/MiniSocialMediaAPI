@@ -335,9 +335,6 @@ class LikedPostsUser(APIView):
     @extend_schema(
         parameters=[
             OpenApiParameter(
-                name='limit', type=int, required=False, description="set page_size"
-            ),
-            OpenApiParameter(
                 name='page', type=int, description="Page number to return.", required=False,
             ),
             OpenApiParameter(
@@ -368,6 +365,18 @@ class LikedPostsUser(APIView):
 
 
 # posts that are commented by the authenticated by user
+@extend_schema(
+    description="An API that returns the posts that commented by the authenticated user.",
+    parameters=[
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+    ],
+    responses=PostsSerializer(many=True)
+)
 class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = PostsSerializer
     permission_classes = [IsActive, IsUser, IsAuthenticated]
