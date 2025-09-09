@@ -12,7 +12,7 @@ class AlbumsSerializer(ModelSerializer):
 
     class Meta:
         model = PostsModels.Albums
-        fields = '__all__'
+        exclude = ['user']
 
 
 class SavePostSerializer(ModelSerializer):
@@ -22,7 +22,7 @@ class SavePostSerializer(ModelSerializer):
 
     class Meta:
         model = PostsModels.SavePosts
-        fields = '__all__'
+        exclude = ['user']
 
 
 class LikePostSerializer(ModelSerializer):
@@ -31,7 +31,7 @@ class LikePostSerializer(ModelSerializer):
 
     class Meta:
         model = PostsModels.LikePost
-        fields = '__all__'
+        exclude = ['user']
 
 
 class CommentsSerializer(ModelSerializer):
@@ -40,7 +40,7 @@ class CommentsSerializer(ModelSerializer):
 
     class Meta:
         model = PostsModels.Comments
-        fields = '__all__'
+        exclude = ['user']
 
 
 class ViewPostSerializer(ModelSerializer):
@@ -49,4 +49,4 @@ class ViewPostSerializer(ModelSerializer):
 
     class Meta:
         model = PostsModels.ViewPost
-        fields = '__all__'
+        exclude = ['user']
