@@ -35,7 +35,7 @@ class TextsSerializer(ModelSerializer):
 
     class Meta:
         model = CoreModels.Texts
-        fields = '__all__'
+        exclude = ['user']
 
 
 class VideosSerializer(ModelSerializer):
@@ -43,7 +43,7 @@ class VideosSerializer(ModelSerializer):
 
     class Meta:
         model = CoreModels.Videos
-        fields = '__all__'
+        exclude = ['user']
 
 
 class ImagesSerializer(ModelSerializer):
@@ -51,7 +51,7 @@ class ImagesSerializer(ModelSerializer):
 
     class Meta:
         model = CoreModels.Images
-        fields = '__all__'
+        exclude = ['user']
 
 
 class PostsSerializer(ModelSerializer):
@@ -62,4 +62,4 @@ class PostsSerializer(ModelSerializer):
 
     class Meta:
         model = CoreModels.Posts
-        fields = '__all__'
+        exclude = ['user']
