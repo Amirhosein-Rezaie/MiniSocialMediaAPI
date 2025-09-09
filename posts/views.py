@@ -9,7 +9,7 @@ from posts import models as PostsModels
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
-from core.helper import (dynamic_search, set_queryset)
+from core.helper import (ONLY_USER_PERMISSIONS, dynamic_search, set_queryset)
 from rest_framework.request import Request
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
