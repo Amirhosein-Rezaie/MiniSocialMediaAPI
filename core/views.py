@@ -11,22 +11,21 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
 from core.helper import (
-    dynamic_search, set_queryset
+    dynamic_search, set_queryset, IS_SELF_OR_READONLY_PERMISSIONS
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
 from core.permissions import (
-    IsAdmin, IsAnonymous, IsSelfOrReadOnly, IsActive
+    IsAdmin, IsAnonymous
 )
-from rest_framework.permissions import IsAuthenticated
 
 
 # Users APIs
 class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
-    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     @extend_schema(
         description="""
@@ -70,9 +69,10 @@ class UserView(ModelViewSet):
 class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
     serializer_class = CoreSerializers.TextsSerializer
     queryset = CoreModels.Texts.objects.all()
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     def get_queryset(self):
-        return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user, CoreModels.Texts)
+        return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Texts)
 
     @extend_schema(
         description="""
@@ -99,11 +99,16 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
             return dynamic_search(self, request, CoreModels.Texts)
         return super().list(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
 
 # Videos APIs
 class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
     serializer_class = CoreSerializers.VideosSerializer
     queryset = CoreModels.Videos.objects.all()
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     def get_permissions(self):
         request = self.request
@@ -141,6 +146,10 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
             return dynamic_search(self, request, CoreModels.Videos)
         return super().list(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
 
 # Videos APIs
 class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
@@ -149,6 +158,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
     """
     serializer_class = CoreSerializers.ImagesSerializer
     queryset = CoreModels.Images.objects.all()
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     def get_permissions(self):
         request = self.request
@@ -186,12 +196,16 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
             return dynamic_search(self, request, CoreModels.Images)
         return super().list(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
+
 
 # Posts APIs
 class PostsView(ModelViewSet):
     serializer_class = CoreSerializers.PostsSerializer
     queryset = CoreModels.Posts.objects.all()
-    permission_classes = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
+    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
 
     def get_queryset(self):
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)
@@ -228,12 +242,12 @@ class PostsView(ModelViewSet):
         image = data.get('image')
         video = data.get('video')
         text = data.get('text')
-        user = data.get('user')
+        user = request.user.pk
 
         # process (validate)
         if image:
             found = CoreModels.Images.objects.get(Q(pk=image))
-            if found.user != user:
+            if found.user.pk != user:
                 return Response(
                     {"detail": f"The uploader of the image ({image}) is not equal to post's uploader ({user}).", },
                     status=status.HTTP_400_BAD_REQUEST
@@ -245,7 +259,7 @@ class PostsView(ModelViewSet):
 
         if video:
             found = CoreModels.Videos.objects.get(Q(pk=video))
-            if found.user != user:
+            if found.user.pk != user:
                 return Response(
                     {"detail": f"The uploader of the video ({video}) is not equal to post's uploader ({user}).", },
                     status=status.HTTP_400_BAD_REQUEST
@@ -256,8 +270,9 @@ class PostsView(ModelViewSet):
             )).update(status=status_value_IN_USED)
 
         if text:
-            found = CoreModels.Videos.objects.get(Q(pk=text))
-            if found.user != user:
+            found = CoreModels.Texts.objects.get(Q(pk=text))
+            print(found.user.pk)
+            if found.user.pk != user:
                 return Response(
                     {"detail": f"The uploader of the text ({text}) is not equal to post's uploader ({user}).", },
                     status=status.HTTP_400_BAD_REQUEST
@@ -268,3 +283,7 @@ class PostsView(ModelViewSet):
             )).update(status=status_value_IN_USED)
 
         return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        return super().perform_create(serializer)
