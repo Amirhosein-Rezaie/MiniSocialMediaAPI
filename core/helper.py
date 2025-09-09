@@ -9,11 +9,12 @@ from django.db.models import Q
 from rest_framework.pagination import PageNumberPagination
 from django.core.exceptions import FieldDoesNotExist, FieldError
 from core.paginations import (DynamicPagination)
-from core.permissions import IsActive, IsUser
+from core.permissions import IsActive, IsSelfOrReadOnly, IsUser
 from rest_framework.permissions import IsAuthenticated
 
 
 ONLY_USER_PERMISSIONS = [IsUser, IsActive, IsAuthenticated]
+IS_SELF_OR_READONLY_PERMISSIONS = [IsSelfOrReadOnly, IsAuthenticated, IsActive]
 
 
 def update_status_value(request: Request, self, status_class: Choices, seriaizer: ModelSerializer):
