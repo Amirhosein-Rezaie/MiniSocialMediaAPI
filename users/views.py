@@ -25,9 +25,7 @@ from core.permissions import (
 )
 from core.models import Users
 from core.serializers import UsersSerializer
-from rest_framework.views import APIView
-from core.paginations import DynamicPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 
 
 # Follow APIs
@@ -78,21 +76,49 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
+        # define allowed statuses and roles
+        active_status = Users.Status.ACTIVE
+        out_users = [
+            Users.Roles.ADMIN.value
+        ] + [s.value for s in Users.Status if s != active_status]
+
         data = request.data
 
-        flr_user = data['follower_user']
-        fld_user = data['followed_user']
+        # get follower and followed users, raise if not found
+        follower_user = None
+        followed_user = None
+        try:
+            follower_user = Users.objects.get(id=data['follower_user'])
+            followed_user = Users.objects.get(id=data['followed_user'])
+        except Users.DoesNotExist:
+            raise ValidationError(
+                detail="Users does not exist.", code=400,
+            )
 
+        # prevent self-follow
+        if followed_user == follower_user:
+            raise ValidationError(
+                detail="Follower user and followed user cannot be the same.", code=400
+            )
+
+        # prevent admin or inactive/deleted users from following
+        if any(u.status in out_users or u.role in out_users for u in [followed_user, follower_user]):
+            raise ValidationError(
+                detail=f"Follower user and followed user should not be in {out_users}.", code=400
+            )
+
+        # prevent duplicate follow
         found = UsersModels.Follow.objects.filter(Q(
-            followed_user=fld_user, follower_user=flr_user
-        ))
+            followed_user=followed_user, follower_user=follower_user
+        )).exists()
 
         if found:
             return Response(
-                {"details": f"This user({data['follower_user']}) has already follow this user({data['followed_user']})", },
+                {"details": "These users are already following each other."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # create follow relationship
         return super().create(request, *args, **kwargs)
 
 
