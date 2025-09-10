@@ -20,7 +20,7 @@ class FollowSerializer(ModelSerializer):
 
     class Meta:
         model = UsersModels.Follow
-        fields = '__all__'
+        exclude = ['follower_user']
 
 
 class LoginsSerializers(ModelSerializer):
