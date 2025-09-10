@@ -88,7 +88,7 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
         follower_user = None
         followed_user = None
         try:
-            follower_user = Users.objects.get(id=data['follower_user'])
+            follower_user = Users.objects.get(id=request.user.pk)
             followed_user = Users.objects.get(id=data['followed_user'])
         except Users.DoesNotExist:
             raise ValidationError(
@@ -98,13 +98,13 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
         # prevent self-follow
         if followed_user == follower_user:
             raise ValidationError(
-                detail="Follower user and followed user cannot be the same.", code=400
+                detail="Follower and followed user cannot be the same.", code=400
             )
 
         # prevent admin or inactive/deleted users from following
         if any(u.status in out_users or u.role in out_users for u in [followed_user, follower_user]):
             raise ValidationError(
-                detail=f"Follower user and followed user should not be in {out_users}.", code=400
+                detail=f"Follower and followed user should not be in {out_users}.", code=400
             )
 
         # prevent duplicate follow
@@ -120,6 +120,10 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
 
         # create follow relationship
         return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(follower_user=self.request.user)
+        return super().perform_create(serializer)
 
 
 # Login APIs
