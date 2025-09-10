@@ -11,13 +11,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
 from core.helper import (
-    dynamic_search, set_queryset, IS_SELF_OR_READONLY_PERMISSIONS
+    dynamic_search, set_queryset
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
 )
 from core.permissions import (
-    IsAdmin, IsAnonymous
+    IsAdmin, IsAnonymous, IsSelfOrReadOnly
 )
 
 
@@ -25,7 +25,7 @@ from core.permissions import (
 class UserView(ModelViewSet):
     serializer_class = CoreSerializers.UsersSerializer
     queryset = CoreModels.Users.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     @extend_schema(
         description="""
@@ -69,7 +69,7 @@ class UserView(ModelViewSet):
 class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
     serializer_class = CoreSerializers.TextsSerializer
     queryset = CoreModels.Texts.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     def get_queryset(self):
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Texts)
@@ -108,7 +108,7 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
 class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
     serializer_class = CoreSerializers.VideosSerializer
     queryset = CoreModels.Videos.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     def get_permissions(self):
         request = self.request
@@ -158,7 +158,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
     """
     serializer_class = CoreSerializers.ImagesSerializer
     queryset = CoreModels.Images.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     def get_permissions(self):
         request = self.request
@@ -205,7 +205,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
 class PostsView(ModelViewSet):
     serializer_class = CoreSerializers.PostsSerializer
     queryset = CoreModels.Posts.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     def get_queryset(self):
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)

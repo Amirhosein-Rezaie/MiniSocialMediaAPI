@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
 from core.helper import (
-    IS_SELF_OR_READONLY_PERMISSIONS, dynamic_search, set_queryset, ONLY_USER_PERMISSIONS
+    dynamic_search, set_queryset, 
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
@@ -32,7 +32,7 @@ from rest_framework.exceptions import ValidationError
 class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = UsersSerializers.FollowSerializer
     queryset = UsersModels.Follow.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     def get_queryset(self):
         request = self.request
@@ -189,7 +189,7 @@ class MyFollowers(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     - Only includes followers whose account status is ACTIVE.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = ONLY_USER_PERMISSIONS
+    permission_classes = [IsUser]
     serializer_class = UsersSerializer
 
     def get_queryset(self):
@@ -227,7 +227,7 @@ class MyFollowings(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     - Only includes followings whose account status is ACTIVE.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = ONLY_USER_PERMISSIONS
+    permission_classes = [IsUser]
     serializer_class = UsersSerializer
 
     def get_queryset(self):

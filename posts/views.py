@@ -10,7 +10,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status as Status
 from core.helper import (
-    IS_SELF_OR_READONLY_PERMISSIONS, ONLY_USER_PERMISSIONS, dynamic_search, set_queryset
+    dynamic_search, set_queryset
 )
 from rest_framework.request import Request
 from drf_spectacular.utils import (
@@ -30,7 +30,7 @@ from rest_framework.permissions import IsAuthenticated
 class AlbumsView(ModelViewSet):
     serializer_class = PostsSerializers.AlbumsSerializer
     queryset = PostsModels.Albums.objects.all()
-    permission_classes = IS_SELF_OR_READONLY_PERMISSIONS
+    permission_classes = [IsSelfOrReadOnly]
 
     def get_permissions(self):
         request = self.request
@@ -362,7 +362,7 @@ class LikedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     - Retrieves all posts that the current user has liked.
     - Supports dynamic pagination based on request parameters.
     """
-    permission_classes = ONLY_USER_PERMISSIONS
+    permission_classes = [IsUser]
     serializer_class = PostsSerializer
 
     def get_queryset(self):
