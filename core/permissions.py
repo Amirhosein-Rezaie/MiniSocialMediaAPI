@@ -29,7 +29,8 @@ class IsAdmin(BasePermission):
 class IsUser(BasePermission):
     def has_permission(self, request: Request, view):
         return bool(
-            IsAuthenticated.has_permission(self, request, view) and
+            IsAuthenticated().has_permission(request, view) and
+            IsActive().has_permission(request, view) and
             request.user.role == Users.Roles.USER
         )
 
@@ -37,13 +38,19 @@ class IsUser(BasePermission):
 # is not authenticated
 class IsAnonymous(BasePermission):
     def has_permission(self, request: Request, view):
-        return bool(
-            not IsAuthenticated.has_permission(self, request, view)
+        return not bool(
+            IsAuthenticated().has_permission(request, view)
         )
 
 
 # just allow PUT, DELETE, PATCH methods for owen user
 class IsSelfOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            IsAuthenticated().has_permission(request, view) and
+            IsActive().has_permission(request, view)
+        )
+
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
