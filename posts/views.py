@@ -406,6 +406,19 @@ class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
         return posts
 
 
+# posts that are commented by the authenticated by user
+@extend_schema(
+    description="An API that returns the posts that visited by the authenticated user.",
+    parameters=[
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+    ],
+    responses=PostsSerializer(many=True)
+)
 class VisitedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     permission_classes = [IsUser]
     serializer_class = PostsSerializer
