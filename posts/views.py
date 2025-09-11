@@ -392,7 +392,7 @@ class LikedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
 )
 class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
     serializer_class = PostsSerializer
-    permission_classes = [IsActive, IsUser, IsAuthenticated]
+    permission_classes = [IsUser]
 
     def get_queryset(self):
         request = self.request
@@ -405,6 +405,16 @@ class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
 
         return posts
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-        return super().perform_create(serializer)
+
+class VisitedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    permission_classes = [IsUser]
+    serializer_class = PostsSerializer
+
+    def get_queryset(self):
+        request = self.request
+
+        return Posts.objects.filter(
+            Q(id__in=PostsModels.ViewPost.objects.filter(
+                Q(user=request.user.id)
+            ).values_list('post', flat=True))
+        )
