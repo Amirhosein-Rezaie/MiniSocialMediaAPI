@@ -21,6 +21,7 @@ class IsActive(BasePermission):
 class IsAdmin(BasePermission):
     def has_permission(self, request: Request, view):
         return bool(
+            IsActive().has_permission(request, view) and
             request.user.role == Users.Roles.ADMIN
         )
 
