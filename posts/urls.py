@@ -14,6 +14,7 @@ router.register(r'commented-posts', views.CommentedPosts, basename='commented-po
 router.register(r'liked-posts', views.LikedPosts, basename='liked-posts')
 router.register(r'visited-posts', views.VisitedPosts, basename='visited-posts')
 router.register(r'saved-posts', views.SavedPosts, basename='saved-posts')
+router.register(r'album-with-posts', views.AlbumWithPosts, basename='album-with-posts')
 
 urlpatterns = [
     path('', include(router.urls)),
