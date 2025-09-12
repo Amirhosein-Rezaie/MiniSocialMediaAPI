@@ -13,6 +13,7 @@ router.register(r'view-post', views.ViewPostView, basename='view-post')
 router.register(r'commented-posts', views.CommentedPosts, basename='commented-posts')
 router.register(r'liked-posts', views.LikedPosts, basename='liked-posts')
 router.register(r'visited-posts', views.VisitedPosts, basename='visited-posts')
+router.register(r'saved-posts', views.SavedPosts, basename='saved-posts')
 
 urlpatterns = [
     path('', include(router.urls)),
