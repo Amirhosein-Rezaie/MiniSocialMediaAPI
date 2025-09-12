@@ -537,7 +537,7 @@ class AlbumWithPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     ],
     responses=PostsSerializer(many=True)
 )
-class Home(ListModelMixin, GenericViewSet):
+class RandomPostsFollowingUser(ListModelMixin, GenericViewSet):
     serializer_class = PostsSerializer
     permission_classes = [IsUser]
 
@@ -550,11 +550,6 @@ class Home(ListModelMixin, GenericViewSet):
             ).values_list('followed_user', flat=True))
         )
 
-        posts = Posts.objects.filter(
+        return Posts.objects.filter(
             Q(user__id__in=following_users)
-        )
-
-        post_ids = list(posts.values_list('id', flat=True))
-
-        random_ids = sample(post_ids, int(len(post_ids) / 2))
-        return Posts.objects.filter(Q(id__in=random_ids))
+        ).order_by('?')
