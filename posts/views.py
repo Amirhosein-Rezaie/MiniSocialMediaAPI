@@ -535,7 +535,7 @@ class AlbumWithPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
             c. Append the serialized data to the results list.
         4. Return the full list of serialized albums and posts as JSON response.
         """
-        albums = self.get_queryset()  # apply any filters if needed
+        albums = self.get_queryset()  # get album queryset
         data = []  # initialize list to hold serialized results
 
         for album in albums:
