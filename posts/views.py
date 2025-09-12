@@ -23,7 +23,8 @@ from core.models import (
 from core.serializers import (
     PostsSerializer
 )
-from rest_framework.permissions import IsAuthenticated
+from users.models import Follow
+from random import sample
 
 
 # Albums APIs
@@ -521,3 +522,39 @@ class AlbumWithPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
             data.append(self.serializer_class((album, posts)).data)
 
         return Response(data, status=Status.HTTP_200_OK)
+
+
+# home view
+@extend_schema(
+    description="Returns random posts that are uploaded by users are followed by auth user.",
+    parameters=[
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+    ],
+    responses=PostsSerializer(many=True)
+)
+class Home(ListModelMixin, GenericViewSet):
+    serializer_class = PostsSerializer
+    permission_classes = [IsUser]
+
+    def get_queryset(self):
+        request = self.request
+
+        following_users = Users.objects.filter(
+            Q(id__in=Follow.objects.filter(
+                Q(follower_user=request.user.pk)
+            ).values_list('followed_user', flat=True))
+        )
+
+        posts = Posts.objects.filter(
+            Q(user__id__in=following_users)
+        )
+
+        post_ids = list(posts.values_list('id', flat=True))
+
+        random_ids = sample(post_ids, int(len(post_ids) / 2))
+        return Posts.objects.filter(Q(id__in=random_ids))
