@@ -131,7 +131,7 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
         """
         # varibles
         data = request.data
-        user = data.get('user')
+        user = request.user.pk
         post = data.get('post')
         album = data.get('album')
 
@@ -145,14 +145,20 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
                     {"detail": f"This album({album}) is not owned by this user({user})"},
                     status=Status.HTTP_400_BAD_REQUEST
                 )
+
+            # check post not to save in same album by the user
             found = PostsModels.SavePosts.objects.filter(Q(
                 user=user, post=post, album=album
-            ))
+            )).exists()
             if found:
                 return Response(
                     {"detail": f"This post({post}) has been saved by this user({user}) in this album({album})."},
                     status=Status.HTTP_400_BAD_REQUEST
                 )
+        else:
+            return Response(
+                {"detail": "No Parameter."}, status=Status.HTTP_400_BAD_REQUEST
+            )
 
         return super().create(request, *args, **kwargs)
 
