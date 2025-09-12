@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.request import Request
 from core.helper import (
-    dynamic_search, set_queryset, 
+    dynamic_search, set_queryset,
 )
 from drf_spectacular.utils import (
     extend_schema, OpenApiParameter
@@ -243,3 +243,22 @@ class MyFollowings(ListModelMixin, RetrieveModelMixin, GenericViewSet):
             Q(id__in=followings_id_list) & Q(status=Users.Status.ACTIVE)
         )
         return users
+
+
+@extend_schema(
+    description="Returns all users that have active status and user role in random way. and this is allow for all users.",
+    parameters=[
+        OpenApiParameter(
+            name='limit', type=int, required=False, description="set page_size of pagination."
+        ),
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+    ],
+)
+class RandomUsers(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    serializer_class = UsersSerializer
+
+    def get_queryset(self):
+        # set users that have active status and user role in random way
+        return Users.objects.filter(Q(role=Users.Roles.USER) & Q(status=Users.Status.ACTIVE)).order_by('?')

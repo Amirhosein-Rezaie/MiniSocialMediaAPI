@@ -8,10 +8,11 @@ from rest_framework_simplejwt.views import (
 )
 
 router = DefaultRouter()
-router.register(r'follow', views.FollowView, basename='follow')
-router.register(r'logins', views.LoginsView, basename='logins')
-router.register(r'my-followers', views.MyFollowers, basename='my-followers')
-router.register(r'my-followings', views.MyFollowings, basename='my-followings')
+router.register(r'follow', views.FollowView, 'follow')
+router.register(r'logins', views.LoginsView, 'logins')
+router.register(r'my-followers', views.MyFollowers, 'my-followers')
+router.register(r'my-followings', views.MyFollowings, 'my-followings')
+router.register(r'random-users', views.RandomUsers, 'random-users')
 
 
 urlpatterns = [
