@@ -406,7 +406,7 @@ class CommentedPosts(GenericViewSet, ListModelMixin, RetrieveModelMixin):
         return posts
 
 
-# posts that are commented by the authenticated by user
+# posts that are visited by the authenticated by user
 @extend_schema(
     description="An API that returns the posts that visited by the authenticated user.",
     parameters=[
@@ -431,3 +431,30 @@ class VisitedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
                 Q(user=request.user.id)
             ).values_list('post', flat=True))
         )
+
+
+# posts that are saved by the authenticated by user
+@extend_schema(
+    description="An API that returns the posts that saved by the authenticated user.",
+    parameters=[
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+    ],
+    responses=PostsSerializer(many=True)
+)
+class SavedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    serializer_class = PostsSerializer
+    permission_classes = [IsUser]
+
+    def get_queryset(self):
+        request = self.request
+
+        return Posts.objects.filter(
+            Q(id__in=PostsModels.SavePosts.objects.filter(
+                Q(user=request.user.pk)
+            ).values_list('post', flat=True))
+        ).distinct()
