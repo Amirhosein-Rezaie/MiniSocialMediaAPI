@@ -464,3 +464,90 @@ class SavedPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
                 Q(user=request.user.pk)
             ).values_list('post', flat=True))
         ).distinct()
+
+
+# album with posts are saved in it
+class AlbumWithPosts(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    serializer_class = PostsSerializers.AlbumWithPostSerializer
+    permission_classes = [IsUser]
+
+    def get_queryset(self):
+        """
+        Return the queryset of albums for the currently logged-in user.
+        - `self.request.user` gives the current authenticated user.
+        - Filtering ensures each user only sees their own albums.
+        """
+        request = self.request
+        return PostsModels.Albums.objects.filter(Q(user=request.user.pk))
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Override to return an instance of our custom serializer.
+        - This allows passing a tuple (album, posts) directly to the serializer.
+        """
+        return self.serializer_class(*args, **kwargs)
+
+    @extend_schema(
+        description="Returns One album with posts are saved in it by authenticated user.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieve a single album and its associated posts.
+        Steps:
+        1. Get the album object based on the URL parameter (`pk`).
+        2. Get all posts linked to this album using SavePosts relationship.
+        3. Serialize the album and posts as a tuple using the custom serializer.
+        4. Return the serialized data as a JSON response with HTTP 200 status.
+        """
+        album = self.get_object()  # fetch the album instance
+        posts = Posts.objects.filter(
+            Q(id__in=PostsModels.SavePosts.objects.filter(
+                Q(album=album)).values_list('post', flat=True)
+              )
+        )  # fetch related posts
+        return Response(
+            # serialize album + posts
+            self.serializer_class((album, posts)).data,
+            status=Status.HTTP_200_OK
+        )
+
+    @extend_schema(
+        description="Returns One album with posts are saved in it by authenticated user.",
+        parameters=[
+            OpenApiParameter(
+                name='page', type=int, description="Page number to return.", required=False,
+            ),
+            OpenApiParameter(
+                name='limit', type=int, description="Number of items per page.", required=False,
+            ),
+        ],
+        responses=PostsSerializer(many=True)
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        List all albums of the logged-in user with their associated posts.
+        Steps:
+        1. Filter albums using get_queryset() to only include user's albums.
+        2. Initialize an empty list to store serialized results.
+        3. Loop through each album:
+            a. Fetch all related posts via SavePosts.
+            b. Serialize each album + its posts as a tuple.
+            c. Append the serialized data to the results list.
+        4. Return the full list of serialized albums and posts as JSON response.
+        """
+        albums = self.filter_queryset(
+            self.get_queryset()
+        )  # apply any filters if needed
+        data = []  # initialize list to hold serialized results
+
+        for album in albums:
+            # Get all posts linked to this album via SavePosts relation
+            posts = Posts.objects.filter(
+                Q(id__in=PostsModels.SavePosts.objects.filter(
+                    Q(album=album)).values_list('post', flat=True))
+            )
+            # Serialize the album and posts as a tuple and append to data
+            data.append(self.serializer_class((album, posts)).data)
+
+        # Return the complete list of albums + posts
+        return Response(data, status=Status.HTTP_200_OK)
