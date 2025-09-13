@@ -24,7 +24,9 @@ from core.serializers import (
     PostsSerializer
 )
 from users.models import Follow
-from random import sample
+from datetime import timedelta
+from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 
 # Albums APIs
@@ -553,3 +555,41 @@ class RandomPostsFollowingUser(ListModelMixin, GenericViewSet):
         return Posts.objects.filter(
             Q(user__id__in=following_users)
         ).order_by('?')
+
+
+@extend_schema(
+    description="Returns random posts that are uploaded after the date(day) before now.",
+    parameters=[
+        OpenApiParameter(
+            name='page', type=int, description="Page number to return.", required=False,
+        ),
+        OpenApiParameter(
+            name='limit', type=int, description="Number of items per page.", required=False,
+        ),
+        OpenApiParameter(
+            name='day', type=int, description="How many days before now.", required=True,
+        ),
+    ],
+)
+class RandomPosts(ListModelMixin, GenericViewSet):
+    serializer_class = PostsSerializer
+    queryset = Posts.objects.all()
+
+    def get_queryset(self):
+        request = self.request
+
+        # check queryparams
+        day_param = request.query_params.get("day")
+        if not day_param:
+            raise ValidationError({"detail": "day parameter not found."})
+
+        # check the type of input
+        try:
+            day = int(day_param)
+        except ValueError:
+            raise ValidationError({"detail": "day must be an integer."})
+
+        # calculate the date days before now and return posts
+        time_before_now = timezone.now() - timedelta(days=day)
+
+        return Posts.objects.filter(created_at__gte=time_before_now)

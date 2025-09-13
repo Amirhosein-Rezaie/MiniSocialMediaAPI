@@ -16,6 +16,7 @@ router.register(r'visited-posts', views.VisitedPosts, 'visited-posts')
 router.register(r'saved-posts', views.SavedPosts, 'saved-posts')
 router.register(r'album-with-posts', views.AlbumWithPosts, 'album-with-posts')
 router.register(r'random-posts-following',views.RandomPostsFollowingUser, 'random-posts-following')
+router.register(r'random-posts',views.RandomPosts, 'random-posts')
 
 urlpatterns = [
     path('', include(router.urls)),
