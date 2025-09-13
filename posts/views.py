@@ -592,4 +592,4 @@ class RandomPosts(ListModelMixin, GenericViewSet):
         # calculate the date days before now and return posts
         time_before_now = timezone.now() - timedelta(days=day)
 
-        return Posts.objects.filter(created_at__gte=time_before_now)
+        return Posts.objects.filter(created_at__gte=time_before_now).order_by('?')
