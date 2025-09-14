@@ -43,6 +43,9 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
                 Q(followed_user=request.user.pk)
             )
 
+        if request.query_params:
+            return dynamic_search(request, UsersModels.Follow)
+
         return super().get_queryset()
 
     def get_permissions(self):
@@ -71,8 +74,6 @@ class FollowView(DestroyModelMixin, ListModelMixin, RetrieveModelMixin, CreateMo
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, UsersModels.Follow)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
@@ -132,6 +133,9 @@ class LoginsView(ReadOnlyModelViewSet):
     queryset = UsersModels.Logins.objects.all()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, UsersModels.Logins)
         return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, UsersModels.Logins)
 
     @extend_schema(
@@ -155,8 +159,6 @@ class LoginsView(ReadOnlyModelViewSet):
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, UsersModels.Logins)
         return super().list(request, *args, **kwargs)
 
 

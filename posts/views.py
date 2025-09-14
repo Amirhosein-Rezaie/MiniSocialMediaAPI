@@ -44,6 +44,9 @@ class AlbumsView(ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, PostsModels.Albums)
         return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Albums)
 
     @extend_schema(
@@ -67,8 +70,6 @@ class AlbumsView(ModelViewSet):
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, PostsModels.Albums)
         return super().list(request, *args, **kwargs)
 
     @extend_schema(
@@ -104,6 +105,9 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
         return super().get_permissions()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, PostsModels.SavePosts)
         return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.SavePosts)
 
     @extend_schema(
@@ -124,8 +128,6 @@ class SavePostsView(GenericViewSet, ListModelMixin, RetrieveModelMixin, CreateMo
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, PostsModels.SavePosts)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
@@ -176,6 +178,9 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
     queryset = PostsModels.LikePost.objects.all()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, PostsModels.LikePost)
         return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.LikePost)
 
     def get_permissions(self):
@@ -204,8 +209,6 @@ class LikePostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Destroy
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, PostsModels.LikePost)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
@@ -237,6 +240,9 @@ class CommentsView(ModelViewSet):
     queryset = PostsModels.Comments.objects.all()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, PostsModels.Comments)
         return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.Comments)
 
     def get_permissions(self):
@@ -268,8 +274,6 @@ class CommentsView(ModelViewSet):
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, PostsModels.Comments)
         return super().list(request, *args, **kwargs)
 
     def update(self, request: Request, *args, **kwargs):
@@ -301,6 +305,9 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
         return super().get_permissions()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, PostsModels.ViewPost)
         return set_queryset(self, Users.Roles.USER, 'user', self.request.user.pk, PostsModels.ViewPost)
 
     @extend_schema(
@@ -321,8 +328,6 @@ class ViewPostView(ListModelMixin, RetrieveModelMixin, CreateModelMixin, Generic
         ]
     )
     def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, PostsModels.ViewPost)
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):

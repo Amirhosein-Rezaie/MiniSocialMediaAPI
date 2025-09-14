@@ -44,9 +44,7 @@ class UserView(ModelViewSet):
             ),
         ]
     )
-    def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, CoreModels.Users)
+    def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
@@ -64,6 +62,12 @@ class UserView(ModelViewSet):
 
         return super().get_permissions()
 
+    def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, CoreModels.Users)
+        return super().get_queryset()
+
 
 # Texts APIs
 class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelMixin):
@@ -72,6 +76,9 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
     permission_classes = [IsSelfOrReadOnly]
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, CoreModels.Texts)
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Texts)
 
     @extend_schema(
@@ -94,9 +101,7 @@ class TextsView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModelM
             ),
         ]
     )
-    def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, CoreModels.Texts)
+    def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -119,6 +124,9 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         return super().get_permissions()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, CoreModels.Videos)
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Videos)
 
     @extend_schema(
@@ -141,9 +149,7 @@ class VideosView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
             ),
         ]
     )
-    def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, CoreModels.Videos)
+    def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -169,6 +175,9 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
         return super().get_permissions()
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, CoreModels.Images)
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Images)
 
     @extend_schema(
@@ -191,9 +200,7 @@ class ImagesView(GenericViewSet, RetrieveModelMixin, ListModelMixin, CreateModel
             ),
         ]
     )
-    def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, CoreModels.Images)
+    def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
@@ -208,6 +215,9 @@ class PostsView(ModelViewSet):
     permission_classes = [IsSelfOrReadOnly]
 
     def get_queryset(self):
+        request = self.request
+        if request.query_params:
+            return dynamic_search(request, CoreModels.Posts)
         return set_queryset(self, CoreModels.Users.Roles.USER, 'user', self.request.user.pk, CoreModels.Posts)
 
     @extend_schema(
@@ -230,9 +240,7 @@ class PostsView(ModelViewSet):
             ),
         ]
     )
-    def list(self, request: Request, *args, **kwargs):
-        if request.query_params:
-            return dynamic_search(self, request, CoreModels.Posts, CoreSerializers.Posts)
+    def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
     def create(self, request: Request, *args, **kwargs):
